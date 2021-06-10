@@ -243,6 +243,9 @@ namespace Components
 		// remove write protection from fs_game
 		Utils::Hook::Xor<DWORD>(0x6431EA, Game::dvar_flag::DVAR_FLAG_WRITEPROTECTED);
 
+		// remove latched from loc_translate
+		Utils::Hook::Xor<BYTE>(0x486195, Game::dvar_flag::DVAR_FLAG_LATCHED);
+
 		// set cg_fov max to 90.0
 		// ...120 because of V2
 		static float cgFov90 = 120.0f;
