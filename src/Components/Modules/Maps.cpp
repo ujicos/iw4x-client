@@ -791,7 +791,7 @@ namespace Components
 			});
 		});
 
-		// disable turrets on CoD:OL 448+ maps for now
+		// disable turrets on CoD:OL 446+ maps for now
 		Utils::Hook(0x5EE577, Maps::G_SpawnTurretHook, HOOK_CALL).install()->quick();
 		Utils::Hook(0x44A4D5, Maps::G_SpawnTurretHook, HOOK_CALL).install()->quick();
 

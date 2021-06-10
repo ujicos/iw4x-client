@@ -216,7 +216,7 @@ namespace Components
 		}
 
 		// Fix shader const stuff
-		if (type == Game::XAssetType::ASSET_TYPE_TECHNIQUE_SET && Zones::Version() >= 359 && Zones::Version() < 448)
+		if (type == Game::XAssetType::ASSET_TYPE_TECHNIQUE_SET && Zones::Version() >= 359 && Zones::Version() < 446)
 		{
 			for (int i = 0; i < 48; ++i)
 			{
@@ -534,7 +534,7 @@ namespace Components
 		AssetHandler::OnLoad([](Game::XAssetType type, Game::XAssetHeader asset, std::string name, bool*)
 		{
 #ifdef DEBUG
-// #define DUMP_TECHSETS
+#define DUMP_TECHSETS
 #ifdef DUMP_TECHSETS
 			if (type == Game::XAssetType::ASSET_TYPE_VERTEXDECL && !name.empty() && name[0] != ',')
 			{
@@ -699,7 +699,42 @@ namespace Components
 			}
 #endif
 
-			if (type == Game::XAssetType::ASSET_TYPE_TECHNIQUE_SET && Zones::Version() >= 460)
+			if (type == Game::XAssetType::ASSET_TYPE_MATERIAL && Zones::Version() == 461)
+			{
+				auto techset = asset.material->techniqueSet;
+				auto materialName = asset.material->info.name;
+
+				if (techset)
+				{
+					for (int t = 0; t < 48; t++)
+					{
+						if (techset->techniques[t])
+						{
+							for (int p = 0; p < techset->techniques[t]->passCount; p++)
+							{
+								for (int a = 0; a < techset->techniques[t]->passArray[p].perObjArgCount +
+									techset->techniques[t]->passArray[p].perPrimArgCount +
+									techset->techniques[t]->passArray[p].stableArgCount; a++)
+								{
+									auto arg = &techset->techniques[t]->passArray[p].args[a];
+									if (arg->type == 3 || arg->type == 5)
+									{
+										if (arg->u.codeConst.index == 257)
+										{
+											OutputDebugStringA(Utils::String::VA("Material %s with %s has 257\n", materialName, techset->name));
+											goto next;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			next:
+
+			if (false && type == Game::XAssetType::ASSET_TYPE_TECHNIQUE_SET && Zones::Version() >= 460)
 			{
 				auto techset = asset.techniqueSet;
 				if (techset)
@@ -724,7 +759,7 @@ namespace Components
 
 											if (!ZoneBuilder::IsEnabled())
 											{
-												__debugbreak();
+												// __debugbreak();
 											}
 										}
 									}
@@ -756,7 +791,7 @@ namespace Components
 		Game::ReallocateAssetPool(Game::XAssetType::ASSET_TYPE_MATERIAL, 8192 * 2);
 		Game::ReallocateAssetPool(Game::XAssetType::ASSET_TYPE_VERTEXDECL, ZoneBuilder::IsEnabled() ? 0x400 : 196);
 		Game::ReallocateAssetPool(Game::XAssetType::ASSET_TYPE_WEAPON, WEAPON_LIMIT);
-		Game::ReallocateAssetPool(Game::XAssetType::ASSET_TYPE_STRINGTABLE, 800);
+		Game::ReallocateAssetPool(Game::XAssetType::ASSET_TYPE_STRINGTABLE, 3200);
 		Game::ReallocateAssetPool(Game::XAssetType::ASSET_TYPE_IMPACT_FX, 8);
 
 		// Register asset interfaces

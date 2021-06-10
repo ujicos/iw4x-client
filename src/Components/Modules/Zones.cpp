@@ -1,5 +1,7 @@
 ﻿#include "STDInclude.hpp"
 
+using namespace std::string_literals;
+
 #pragma optimize( "", off )
 namespace Components
 {
@@ -1381,7 +1383,7 @@ namespace Components
 		char* varWeaponAttach = *reinterpret_cast<char**>(0x112ADE0); // varAddonMapEnts
 
 		// and do the stuff
-		if (Zones::Version() >= 448)
+		if (Zones::Version() >= 446)
 		{
 			Game::Load_Stream(true, varWeaponAttach, 20);
 
@@ -1426,7 +1428,7 @@ namespace Components
 
 	bool Zones::LoadMaterialShaderArgumentArray(bool atStreamStart, Game::MaterialShaderArgument* argument, int size)
 	{
-		// if (Zones::ZoneVersion >= 448 && currentAssetType == Game::XAssetType::ASSET_TYPE_FX) __debugbreak();
+		// if (Zones::ZoneVersion >= 446 && currentAssetType == Game::XAssetType::ASSET_TYPE_FX) __debugbreak();
 		bool result = Game::Load_Stream(atStreamStart, argument, size);
 
 		Game::MaterialPass* curPass = *Game::varMaterialPass;
@@ -1436,13 +1438,13 @@ namespace Components
 		{
 			Game::MaterialShaderArgument* arg = &argument[i];
 
-			if (Zones::Version() < 448)
+			if (arg->type != D3DSHADER_PARAM_REGISTER_TYPE::D3DSPR_TEXTURE && arg->type != D3DSHADER_PARAM_REGISTER_TYPE::D3DSPR_ATTROUT)
 			{
-				if (arg->type != D3DSHADER_PARAM_REGISTER_TYPE::D3DSPR_TEXTURE && arg->type != D3DSHADER_PARAM_REGISTER_TYPE::D3DSPR_ATTROUT)
-				{
-					continue;
-				}
-				
+				continue;
+			}
+
+			if (Zones::Version() < 446)
+			{
 				// should be min 68 currently
 				// >= 58 fixes foliage without bad side effects
 				// >= 53 still has broken shadow mapping
@@ -1489,7 +1491,104 @@ namespace Components
 			{
 				if (arg->type == 3 || arg->type == 5)
 				{
-					if (Zones::Version() == 460 /*|| Zones::Version() == 448*/)		// 448 is no longer compatible, needs correct mappings
+					if (Zones::Version() == 446)
+					{
+						static std::unordered_map<std::uint16_t, std::uint16_t> mapped_constants = {
+							{ 33, 31 },
+							{ 34, 32 },
+							{ 36, 34 },
+							{ 39, 37 },
+							{ 40, 38 },
+							{ 42, 40 },
+							{ 43, 41 },
+							{ 45, 43 },
+							{ 62, 52 },
+							{ 63, 53 },
+							{ 199, 58 },
+							{ 259, 86 },
+							{ 263, 90 },
+							{ 271, 98 },
+							{ 279, 106 },
+						};
+
+						const auto itr = mapped_constants.find(arg->u.codeConst.index);
+						if (itr != mapped_constants.end())
+						{
+							arg->u.codeConst.index = itr->second;
+						}
+						else
+						{
+							if (arg->u.codeConst.index >= 259)
+							{
+								arg->u.codeConst.index -= 171;
+							}
+							else if (arg->u.codeConst.index >= 197)
+							{
+								arg->u.codeConst.index -= 139;
+							}
+						}
+					}
+					else if (Zones::Version() == 461)
+					{
+						static std::unordered_map<std::uint16_t, std::uint16_t> mapped_constants = 
+						{
+							//// mp_raid
+							{ 33, 31 },
+							{ 34, 32 },
+							{ 36, 34 },
+							{ 39, 37 },	
+							{ 40, 38 },
+							{ 42, 40 },
+							{ 43, 41 },
+							{ 45, 43 },
+							{ 62, 52 },
+							{ 63, 53 },
+							{ 197, 58 },
+							{ 202, 63 },
+							{ 203, 64 },
+							{ 261, 90 },
+							{ 265, 94 },
+							{ 269, 98 },
+							{ 277, 106 },
+
+							//// mp_dome
+							{ 38, 36 },
+							{ 40, 38 },
+							{ 118, 86 },
+						};
+
+						const auto itr = mapped_constants.find(arg->u.codeConst.index);
+						if (itr != mapped_constants.end())
+						{
+							arg->u.codeConst.index = itr->second;
+						}
+						if (arg->u.codeConst.index == 257)
+						{
+							auto techsetName = (*reinterpret_cast<Game::MaterialTechniqueSet**>(0x112AE8C))->name;
+
+							if (!strncmp(techsetName, "wc_unlit_add", 12) ||
+								!strncmp(techsetName, "wc_unlit_multiply", 17) )
+							{
+								arg->u.codeConst.index = 116;
+							}
+							else
+							{
+								arg->u.codeConst.index = 86;
+							}
+						}
+						else
+						{
+							if (arg->u.codeConst.index >= 259)
+							{
+								arg->u.codeConst.index -= 171;
+							}
+							else if (arg->u.codeConst.index >= 197)
+							{
+								arg->u.codeConst.index -= 139;
+							}
+						}
+					}
+					else if (Zones::Version() == 460 /*|| Zones::Version() == 446*/)		// 446 is no longer compatible, needs correct mappings
 					{
 						static std::unordered_map<std::uint16_t, std::uint16_t> mapped_constants = {
 							{ 22, 21 },
@@ -1741,8 +1840,8 @@ namespace Components
 	{
 		// 359 and above adds an extra remapped techset ptr
 		if (Zones::ZoneVersion >= 359) size += 4;
-		// 448 amd above adds an additional technique
-		if (Zones::ZoneVersion >= 448) size += 4;
+		// 446 amd above adds an additional technique
+		if (Zones::ZoneVersion >= 446) size += 4;
 		
 		bool result = Game::Load_Stream(atStreamStart, buffer, size);
 
@@ -1754,22 +1853,22 @@ namespace Components
 			// As MW2 flags are only 1 byte large, this won't be possible anyways
 			int shiftTest = 4;
 
-			std::memmove(buffer + 8 + shiftTest, buffer + 12 + shiftTest, (Zones::Version() >= 448) ? 200 : 196 - shiftTest);
-			AssetHandler::Relocate(buffer + 12 + shiftTest, buffer + 8 + shiftTest, (Zones::Version() >= 448) ? 200 : 196 - shiftTest);
+			std::memmove(buffer + 8 + shiftTest, buffer + 12 + shiftTest, (Zones::Version() >= 446) ? 200 : 196 - shiftTest);
+			AssetHandler::Relocate(buffer + 12 + shiftTest, buffer + 8 + shiftTest, (Zones::Version() >= 446) ? 200 : 196 - shiftTest);
 		}
 
 		return result;
 	}
 	int Zones::LoadMaterialTechniqueArray(bool atStreamStart, int count)
 	{
-		if (Zones::Version() >= 448)
+		if (Zones::Version() >= 446)
 		{
 			count += 1;
 		}
 
 		auto retval = Utils::Hook::Call<int(bool, int)>(0x497020)(atStreamStart, count);
 
-		if (Zones::Version() >= 448)
+		if (Zones::Version() >= 446)
 		{
 			auto lastTechnique = **reinterpret_cast<Game::MaterialTechnique * **>(0x112AEDC);
 			auto varMaterialTechniqueSet = **reinterpret_cast<Game::MaterialTechniqueSet * **>(0x112B070);
@@ -1783,11 +1882,11 @@ namespace Components
 
 	bool Zones::LoadMaterial(bool atStreamStart, char* buffer, int size)
 	{
-		// if (Zones::ZoneVersion >= 448 && currentAssetType == Game::ASSET_TYPE_XMODEL) __debugbreak();
+		// if (Zones::ZoneVersion >= 446 && currentAssetType == Game::ASSET_TYPE_XMODEL) __debugbreak();
 
-		bool result = Game::Load_Stream(atStreamStart, buffer, (Zones::Version() >= 448) ? 104 : size);
+		bool result = Game::Load_Stream(atStreamStart, buffer, (Zones::Version() >= 446) ? 104 : size);
 
-		if (Zones::Version() >= 448)
+		if (Zones::Version() >= 446)
 		{
 			char codol_material[104];
 			memcpy(codol_material, buffer, 104);
@@ -1990,7 +2089,7 @@ namespace Components
 	void Zones::LoadImpactFx(bool atStreamStart, char* buffer, int size)
 	{
 		if (Zones::Version() >= 460) size = 0xB94;
-		else if (Zones::Version() >= 448) size = 0xA64;
+		else if (Zones::Version() >= 446) size = 0xA64;
 		else if (Zones::Version() >= VERSION_ALPHA2) size = 0x8C0;
 
 		Game::Load_Stream(atStreamStart, buffer, size);
@@ -2007,7 +2106,7 @@ namespace Components
 
 	int Zones::ImpactFxArrayCount()
 	{
-		if (Zones::Version() >= 448)
+		if (Zones::Version() >= 446)
 		{
 			return 19;
 		}
@@ -2170,7 +2269,7 @@ namespace Components
 	int Zones::LoadRandomFxGarbage(bool atStreamStart, char* buffer, int size)
 	{
 		int count = 0;
-		if (Zones::Version() >= 448)
+		if (Zones::Version() >= 446)
 		{
 			size /= 48;
 			count = size;
@@ -2179,7 +2278,7 @@ namespace Components
 
 		const auto retval = Game::Load_Stream(atStreamStart, buffer, size);
 
-		if (Zones::Version() >= 448)
+		if (Zones::Version() >= 446)
 		{
 			for (auto i = 0; i < count; i++)
 			{	
@@ -2258,7 +2357,7 @@ namespace Components
 	{
 		int count = 0;
 		
-		if (Zones::Version() >= 448)
+		if (Zones::Version() >= 446)
 		{
 			size /= 12;
 			count = size;
@@ -2267,7 +2366,7 @@ namespace Components
 
 		auto retval = Game::Load_Stream(atStreamStart, buffer, size);
 
-		if (Zones::Version() >= 448)
+		if (Zones::Version() >= 446)
 		{
 			for (int i = 0; i < count; i++)
 			{
@@ -2332,8 +2431,8 @@ namespace Components
 			cmp dword ptr[eax], 0xFFFFFFFF;
 			je loadAssetData;
 
-			// check if FF is below 448, still load data in that case
-			cmp Zones::ZoneVersion, 448;
+			// check if FF is below 446, still load data in that case
+			cmp Zones::ZoneVersion, 446;
 			jl loadAssetData;
 
 			// offset to pointer magic
@@ -2426,7 +2525,7 @@ namespace Components
 	
 	int Zones::LoadMapEnts(bool atStreamStart, Game::MapEnts* buffer, int size)
 	{
-		if (Zones::Version() >= 448)
+		if (Zones::Version() >= 446)
 		{
 			size /= 44;
 			size *= 36;
@@ -2583,7 +2682,7 @@ namespace Components
 	
 	int Zones::LoadClipMap(bool atStreamStart)
 	{
-		if (Zones::Version() >= 448)
+		if (Zones::Version() >= 446)
 		{			
 			AssertOffset(codolClipMap_t, pInfo, 72);
 			
@@ -3139,8 +3238,8 @@ namespace Components
 			cmp dword ptr[edx + 4], 0xFFFFFFFF;
 			je loadAssetData;
 
-			// check if FF is below 448, still load data in that case
-			cmp Zones::ZoneVersion, 448;
+			// check if FF is below 446, still load data in that case
+			cmp Zones::ZoneVersion, 446;
 			jl loadAssetData;
 
 			// offset to pointer magic
@@ -3171,8 +3270,8 @@ namespace Components
 			cmp dword ptr[eax + 0Ch], 0xFFFFFFFF;
 			je loadAssetData;
 
-			// check if FF is below 448, still load data in that case
-			cmp Zones::ZoneVersion, 448;
+			// check if FF is below 446, still load data in that case
+			cmp Zones::ZoneVersion, 446;
 			jl loadAssetData;
 
 			// offset to pointer magic
@@ -3203,8 +3302,8 @@ namespace Components
 			cmp dword ptr[eax + 14h], 0xFFFFFFFF;
 			je loadAssetData;
 
-			// check if FF is below 448, still load data in that case
-			cmp Zones::ZoneVersion, 448;
+			// check if FF is below 446, still load data in that case
+			cmp Zones::ZoneVersion, 446;
 			jl loadAssetData;
 
 			// offset to pointer magic
@@ -3273,11 +3372,11 @@ namespace Components
 
 	void Zones::LoadXModelAsset(Game::XModel** asset)
 	{
-		if (Zones::Version() >= 448)
+		if (Zones::Version() >= 446)
 		{
 			for (int i = 0; i < (*asset)->numLods; i++)
 			{
-				if ((*asset)->lodInfo[i].surfs == nullptr && Zones::Version() >= 448)
+				if ((*asset)->lodInfo[i].surfs == nullptr && Zones::Version() >= 446)
 				{
 					const auto name = (*asset)->name;
 					const auto fx_model = Game::DB_FindXAssetHeader(Game::XAssetType::ASSET_TYPE_XMODEL, "void").model;
@@ -3303,7 +3402,7 @@ namespace Components
 
 	void Zones::LoadMaterialAsset(Game::Material** asset)
 	{
-		if (asset && *asset && Zones::Version() >= 448)
+		if (asset && *asset && Zones::Version() >= 446)
 		{
 			static std::vector<std::string> broken_materials = {
 				"gfx_fxt_debris_wind_ash_z10",
