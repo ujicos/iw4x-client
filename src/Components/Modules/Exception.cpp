@@ -1,5 +1,7 @@
 #include "STDInclude.hpp"
 
+#include <random>
+
 namespace Components
 {
 	Utils::Hook Exception::SetFilterHook;
@@ -197,7 +199,22 @@ namespace Components
 
 			Game::R_AddCmdDrawText("DEBUG-BUILD", 0x7FFFFFFF, font, 15.0f, 10.0f + Game::R_TextHeight(font), 1.0f, 1.0f, 0.0f, color, Game::ITEM_TEXTSTYLE_SHADOWED);
 		}, true);
+#else
+		Scheduler::OnFrame([]()
+		{
+			// static auto aspect = Utils::Hook::Get<float>(0x66E1C78);
+			float x = 15, y = 10;
+
+			// x = static_cast<float>((rand() % 500) * aspect);
+			// y = static_cast<float>(rand() % 500);
+
+			Game::Font_s* font = Game::R_RegisterFont("fonts/normalFont", 0);
+			float color[4] = { 1.0f, 1.0f, 1.0f, 0.5f };
+
+			Game::R_AddCmdDrawText("^1CODOL-MOD TEST\n ^3QQ QUN: ^2164933237", 0x7FFFFFFF, font, x, y + Game::R_TextHeight(font), 1.0f, 1.0f, 0.0f, color, Game::ITEM_TEXTSTYLE_SHADOWED);
+		}, true);
 #endif
+
 #if !defined(DEBUG) || defined(FORCE_EXCEPTION_HANDLER)
 		Exception::SetFilterHook.initialize(SetUnhandledExceptionFilter, Exception::SetUnhandledExceptionFilterStub, HOOK_JUMP);
 		Exception::SetFilterHook.install();

@@ -3409,9 +3409,16 @@ namespace Components
 				"gfx_fxt_smk_light_z3"
 			};
 
-			// replace broken materials with the default one as restricting them does not seem to work.
-			const auto itr = std::find(broken_materials.begin(), broken_materials.end(), (*asset)->info.name);
-			if (itr != broken_materials.end())
+			bool flag = false;
+
+			if ((*asset)->info.name)
+			{
+				// replace broken materials with the default one as restricting them does not seem to work.
+				const auto itr = std::find(broken_materials.begin(), broken_materials.end(), (*asset)->info.name);
+				flag = itr != broken_materials.end();
+			}
+			
+			if (flag)
 			{
 				const auto name = (*asset)->info.name;
 				const auto default_material = Game::DB_FindXAssetHeader(Game::XAssetType::ASSET_TYPE_MATERIAL, "$default").material;

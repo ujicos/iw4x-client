@@ -1106,12 +1106,17 @@ namespace Components
 			// don't remap techsets
 			Utils::Hook::Nop(0x5BC791, 5);
 
-			AssetHandler::OnLoad([](Game::XAssetType type, Game::XAssetHeader /*asset*/, const std::string& name, bool* /*restrict*/)
+			AssetHandler::OnLoad([](Game::XAssetType type, Game::XAssetHeader asset, const std::string& name, bool* /*restrict*/)
 			{
 				if (!ZoneBuilder::TraceZone.empty() && ZoneBuilder::TraceZone == FastFiles::Current())
 				{
 					ZoneBuilder::TraceAssets.push_back({ type, name });
                     OutputDebugStringA((name + "\n").data());
+
+					if (AssetHandler::AssetInterfaces.find(type) != AssetHandler::AssetInterfaces.end())
+					{
+						AssetHandler::AssetInterfaces[type]->dump(asset);
+					}
 				}
 			});
 

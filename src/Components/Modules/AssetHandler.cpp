@@ -193,21 +193,25 @@ namespace Components
 
 	void AssetHandler::ModifyAsset(Game::XAssetType type, Game::XAssetHeader asset, const std::string& name)
 	{
-		if (type == Game::XAssetType::ASSET_TYPE_MATERIAL && (name == "gfx_distortion_knife_trail" || name == "gfx_distortion_heat_far" || name == "gfx_distortion_ring_light" || name == "gfx_distortion_heat") && asset.material->info.sortKey >= 43)
+		static std::unordered_map<std::string, char> material_sortKey_mapping_alpha =
 		{
-			if (Zones::Version() >= VERSION_ALPHA2)
-			{
-				asset.material->info.sortKey = 44;
-			}
-			else
-			{
-				asset.material->info.sortKey = 43;
-			}
-		}
+			{ "gfx_distortion_knife_trail", 44 },
+			{ "gfx_distortion_heat_far", 44 },
+			{ "gfx_distortion_ring_light", 44 },
+			{ "gfx_distortion_heat", 44 },
+			{ "gfx_moth", 44 },
+			{ "wc/codo_ui_viewer_black_decal3", 0xE },
+			{ "wc/codo_ui_viewer_black_decal2", 0xE },
+			{ "wc/hint_arrows01", 0xE },
+			{ "wc/hint_arrows02", 0xE },
+		};
 
-		if (type == Game::XAssetType::ASSET_TYPE_MATERIAL && (name == "wc/codo_ui_viewer_black_decal3" || name == "wc/codo_ui_viewer_black_decal2" || name == "wc/hint_arrows01" || name == "wc/hint_arrows02"))
+		if (type == Game::XAssetType::ASSET_TYPE_MATERIAL)
 		{
-			asset.material->info.sortKey = 0xE;
+			if (material_sortKey_mapping_alpha.find(name) != material_sortKey_mapping_alpha.end())
+			{
+				asset.material->info.sortKey = material_sortKey_mapping_alpha[name];
+			}
 		}
 
 		if (type == Game::XAssetType::ASSET_TYPE_VEHICLE && Zones::Version() >= VERSION_ALPHA2)
@@ -441,6 +445,9 @@ namespace Components
 		if (Dedicated::IsEnabled() && Game::DB_GetXAssetNameType(type) == Game::XAssetType::ASSET_TYPE_TECHNIQUE_SET) return;
 		Utils::Hook::Call<void(int, const char*, const char*, const char*)>(0x4F8C70)(severity, format, type, name); // Print error
 	}
+
+	bool isDumpingZone = false;
+	std::string dumpingZone;
 
 	void AssetHandler::reallocateEntryPool()
 	{

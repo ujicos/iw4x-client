@@ -148,6 +148,20 @@ namespace Components
 		Utils::Merge(&Maps::CurrentDependencies, dependencies.data(), dependencies.size());
 
 		std::vector<Game::XZoneInfo> data;
+		
+		// Load patch files
+		std::string patchZone = Utils::String::VA("patch_%s", zoneInfo->name);
+		if (FastFiles::Exists(patchZone))
+		{
+			data.push_back({ patchZone.data(), zoneInfo->allocFlags, zoneInfo->freeFlags });
+		}
+
+		std::string patchZtZone = Utils::String::VA("patch_zt_%s", zoneInfo->name);
+		if (FastFiles::Exists(patchZtZone))
+		{
+			data.push_back({ patchZtZone.data(), zoneInfo->allocFlags, zoneInfo->freeFlags });
+		}
+
 		Utils::Merge(&data, zoneInfo, zoneCount);
 		
 		Game::XZoneInfo team;
@@ -171,12 +185,6 @@ namespace Components
 			data.push_back(info);
 		}
 
-		// Load patch files
-		std::string patchZone = Utils::String::VA("patch_%s", zoneInfo->name);
-		if (FastFiles::Exists(patchZone))
-		{
-			data.push_back({patchZone.data(), zoneInfo->allocFlags, zoneInfo->freeFlags});
-		}
 
 		return FastFiles::LoadLocalizeZones(data.data(), data.size(), sync);
 	}
