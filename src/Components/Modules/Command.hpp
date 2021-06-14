@@ -46,6 +46,7 @@ namespace Components
 		};
 
 		typedef void(Callback)(Command::Params* params);
+		typedef void(CallbackSv)(int clientNum, Command::Params* params);
 
 		Command();
 		~Command();
@@ -56,6 +57,8 @@ namespace Components
 		static void AddSV(const char* name, Utils::Slot<Callback> callback);
 		static void AddRaw(const char* name, void(*callback)(), bool key = false);
 		static void AddRawSV(const char* name, void(*callback)());
+		static void AddSvAlt(const char* name, Utils::Slot<Command::CallbackSv> callback);
+		static void ClientCommandStub(int clientNum);
 		static void Execute(std::string command, bool sync = true);
 
 		static Game::cmd_function_t* Find(const std::string& command);
@@ -63,6 +66,7 @@ namespace Components
 	private:
 		static std::unordered_map<std::string, Utils::Slot<Callback>> FunctionMap;
 		static std::unordered_map<std::string, Utils::Slot<Callback>> FunctionMapSV;
+		static std::unordered_map<std::string, Utils::Slot<CallbackSv>> FunctionMapSVAlt;
 
 		static void MainCallback();
 		static void MainCallbackSV();

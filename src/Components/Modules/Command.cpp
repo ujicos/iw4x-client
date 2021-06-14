@@ -2,8 +2,22 @@
 
 namespace Components
 {
+	namespace
+	{
+		bool CanCheat()
+		{
+			static Game::dvar_t* sv_cheats = nullptr;
+
+			if (sv_cheats == nullptr)
+				sv_cheats = Game::Dvar_FindVar("sv_cheats");
+
+			return sv_cheats->current.enabled;
+		}
+	}
+
 	std::unordered_map<std::string, Utils::Slot<Command::Callback>> Command::FunctionMap;
 	std::unordered_map<std::string, Utils::Slot<Command::Callback>> Command::FunctionMapSV;
+	std::unordered_map<std::string, Utils::Slot<Command::CallbackSv>> Command::FunctionMapSVAlt;
 
 	std::string Command::Params::join(size_t startIndex)
 	{
@@ -156,6 +170,42 @@ namespace Components
 		}
 	}
 
+	void Command::AddSvAlt(const char* name, Utils::Slot<Command::CallbackSv> callback)
+	{
+		std::string command = Utils::String::ToLower(name);
+
+		if (Command::FunctionMapSVAlt.find(command) == Command::FunctionMapSVAlt.end())
+		{
+			// If the main command is registered as Cbuf_AddServerText, the command will be redirected to the SV handler
+			Command::AddRaw(name, nullptr);
+		}
+
+		Command::FunctionMapSVAlt[command] = callback;
+	}
+
+	void Command::ClientCommandStub(int clientNum)
+	{
+		Command::ServerParams params(*Game::cmd_id_sv);
+		std::string command = Utils::String::ToLower(params[0]);
+
+		if (Command::FunctionMapSVAlt.find(command) != Command::FunctionMapSVAlt.end())
+		{
+			Command::FunctionMapSVAlt[command](clientNum, &params);
+		}
+		else
+		{
+			// call original function
+			const int orig = 0x416790;
+
+			__asm
+			{
+				push clientNum
+				call orig
+				add esp, 4
+			}
+		}
+	}
+
 	Command::Command()
 	{
 		AssertSize(Game::cmd_function_t, 24);
@@ -166,6 +216,34 @@ namespace Components
 
 		// Disable native noclip command
 		Utils::Hook::Nop(0x474846, 5);
+
+		Utils::Hook(0x6259FA, Command::ClientCommandStub, HOOK_CALL).install()->quick();
+
+		Command::AddSvAlt("give", [](int clientNum, Command::Params* params)
+		{
+			if (!CanCheat())
+			{
+				Game::SV_GameSendServerCommand(clientNum, 1, "f \"Cheats are not enabled on this server\"");
+				return;
+			}
+
+			if (params->length() < 2)
+			{
+				Game::SV_GameSendServerCommand(clientNum, 1, "f \"Missing weapon name\"");
+				return;
+			}
+
+			int weapon = Game::BG_FindWeaponIndexForName(params->get(1));
+			auto* ps = Game::g_entities[clientNum].client;
+			
+			if (Game::G_GivePlayerWeapon(ps, weapon, 0, 0))
+			{
+				Game::G_InitializeAmmo(&Game::g_entities[clientNum], weapon, 0, 0);
+
+				// Actually G_SelectWeaponIndex but whatever
+				Game::SV_GameSendServerCommand(clientNum, 1, Utils::String::VA("a %i", weapon));
+			}
+		});
 
 		Command::Add("noclip", [](Command::Params*)
 		{

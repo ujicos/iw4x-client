@@ -101,6 +101,7 @@ namespace Components
 		Loader::Register(new StructuredData());
 		Loader::Register(new ConnectProtocol());
 		Loader::Register(new StartupMessages());
+		Loader::Register(new ViewModel());
 
 		Loader::Register(new Client());
 

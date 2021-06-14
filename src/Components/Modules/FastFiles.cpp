@@ -139,6 +139,11 @@ namespace Components
 			data.push_back({ "iw4x_patch_mp", 1, 0 });
 		}
 
+		if (FastFiles::Exists("common_codo_weapons"))
+		{
+			data.push_back({ "common_codo_weapons", 1, 0 });
+		}
+
 		if (Utils::IO::FileExists(Dvar::Var("fs_game").get<std::string>() + "/mod.ff"))
 		{
 			data.push_back({ "mod", 1, 0 });

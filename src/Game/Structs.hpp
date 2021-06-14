@@ -5262,7 +5262,37 @@ namespace Game
 		int updateSound;
 		int allowAddDObj;
 	};
+	
+	struct weaponState_t
+	{
+		char* ps;
+		float xyspeed;
+		float frametime;
+		float fLastIdleFactor;
+		int time;
+		int damageTime;
+		float v_dmg_pitch;
+		float v_dmg_roll;
+		int* weapIdleTime;
+		vec3_t baseAngles;
+		vec3_t baseOrigin;
+		vec3_t recoilAngles;
+		vec3_t recoilSpeed;
+		vec3_t swayAngles;
+		vec3_t swayOrigin;
+		vec3_t swayViewAngles;
+		vec3_t bobAngles;
+		int shellShockStart;
+		int shellShockDuration;
+		int shellShockFadeTime;
+	};
 
+	struct cspField_t
+	{
+		const char* szName;
+		int iOffset;
+		int iFieldType;
+	};
 #pragma endregion
 
 #ifndef IDA

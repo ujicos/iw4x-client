@@ -40,6 +40,12 @@ namespace Game
 	typedef void*(__cdecl * BG_LoadWeaponDef_LoadObj_t)(const char* filename);
 	extern BG_LoadWeaponDef_LoadObj_t BG_LoadWeaponDef_LoadObj;
 
+	typedef int(__cdecl* BG_FindWeaponIndexForName_t)(const char* name);
+	extern BG_FindWeaponIndexForName_t BG_FindWeaponIndexForName;
+
+	typedef int (__cdecl* BG_GetViewmodelWeaponIndex_t)(int ps);
+	extern BG_GetViewmodelWeaponIndex_t BG_GetViewmodelWeaponIndex;
+
 	typedef void(__cdecl * Cbuf_AddServerText_t)();
 	extern Cbuf_AddServerText_t Cbuf_AddServerText;
 
@@ -322,6 +328,9 @@ namespace Game
 
 	typedef void(__cdecl* G_SpawnEntitiesFromString_t)();
 	extern G_SpawnEntitiesFromString_t G_SpawnEntitiesFromString;
+
+	typedef int(__cdecl* G_GivePlayerWeapon_t)(void* pPS, int weaponIndex, char altModelIndex, int unk1);
+	extern G_GivePlayerWeapon_t G_GivePlayerWeapon;
 
 	typedef void(__cdecl * GScr_LoadGameTypeScript_t)();
 	extern GScr_LoadGameTypeScript_t GScr_LoadGameTypeScript;
@@ -916,4 +925,6 @@ namespace Game
 	void R_AddDebugString(float *color, float *pos, float scale, const char *str);
 	void R_AddDebugBounds(float* color, Bounds* b);
 	void R_AddDebugBounds(float* color, Bounds* b, const float(*quat)[4]);
+
+	void G_InitializeAmmo(gentity_s* pSelf, int weaponIndex, int weaponModel, int hadWeapon);
 }

@@ -705,7 +705,6 @@ namespace Components
 				fclose(fp);
 			}
 #endif
-
 			if (type == Game::XAssetType::ASSET_TYPE_MATERIAL && Zones::Version() == 461)
 			{
 				auto techset = asset.material->techniqueSet;
@@ -778,6 +777,17 @@ namespace Components
 			}
 			
 #endif
+			if (type == Game::XAssetType::ASSET_TYPE_SOUND)
+			{
+				auto sound = asset.sound;
+
+				for (size_t i = 0; i < sound->count; i++)
+				{
+					auto snd = sound->head[i];
+					
+					Game::Com_Printf(0, "%s: vmin %f, vmax %f, falloff %s\n", snd.aliasName, snd.volMin, snd.volMax, snd.volumeFalloffCurve->filename);
+				}
+			}
 			
 			if (Dvar::Var("r_noVoid").get<bool>() && type == Game::XAssetType::ASSET_TYPE_XMODEL && name == "void")
 			{

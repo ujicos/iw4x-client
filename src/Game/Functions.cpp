@@ -29,7 +29,9 @@ namespace Game
 
 	BG_GetNumWeapons_t BG_GetNumWeapons = BG_GetNumWeapons_t(0x4F5CC0);
 	BG_GetWeaponName_t BG_GetWeaponName = BG_GetWeaponName_t(0x4E6EC0);
+	BG_FindWeaponIndexForName_t BG_FindWeaponIndexForName = BG_FindWeaponIndexForName_t(0x4CE8E0);
 	BG_LoadWeaponDef_LoadObj_t BG_LoadWeaponDef_LoadObj = BG_LoadWeaponDef_LoadObj_t(0x57B5F0);
+	BG_GetViewmodelWeaponIndex_t BG_GetViewmodelWeaponIndex = BG_GetViewmodelWeaponIndex_t(0x4BE4D0);
 
 	Cbuf_AddServerText_t Cbuf_AddServerText = Cbuf_AddServerText_t(0x4BB9B0);
 	Cbuf_AddText_t Cbuf_AddText = Cbuf_AddText_t(0x404B20);
@@ -138,6 +140,7 @@ namespace Game
 
 	G_GetWeaponIndexForName_t G_GetWeaponIndexForName = G_GetWeaponIndexForName_t(0x49E540);
 	G_SpawnEntitiesFromString_t G_SpawnEntitiesFromString = G_SpawnEntitiesFromString_t(0x4D8840);
+	G_GivePlayerWeapon_t G_GivePlayerWeapon = G_GivePlayerWeapon_t(0x4B38B0);
 
 	GScr_LoadGameTypeScript_t GScr_LoadGameTypeScript = GScr_LoadGameTypeScript_t(0x4ED9A0);
 
@@ -1192,6 +1195,21 @@ namespace Game
 
 			popad
 			retn
+		}
+	}
+
+	void G_InitializeAmmo(gentity_s* pSelf, int weaponIndex, int weaponModel, int hadWeapon)
+	{
+		const int g_init_ammo = 0x5D8DE0;
+
+		__asm
+		{
+			mov edi, pSelf
+			mov eax, weaponIndex
+			push weaponModel
+			push hadWeapon
+			call g_init_ammo
+			add esp, 8
 		}
 	}
 #pragma optimize("", on)
