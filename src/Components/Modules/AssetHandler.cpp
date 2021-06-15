@@ -775,8 +775,7 @@ namespace Components
 					}
 				}
 			}
-			
-#endif
+
 			if (type == Game::XAssetType::ASSET_TYPE_SOUND)
 			{
 				auto sound = asset.sound;
@@ -784,11 +783,46 @@ namespace Components
 				for (size_t i = 0; i < sound->count; i++)
 				{
 					auto snd = sound->head[i];
-					
+
 					Game::Com_Printf(0, "%s: vmin %f, vmax %f, falloff %s\n", snd.aliasName, snd.volMin, snd.volMax, snd.volumeFalloffCurve->filename);
 				}
 			}
-			
+
+			if (type == Game::XAssetType::ASSET_TYPE_CLIPMAP_MP)
+			{
+				auto* world = asset.clipMap;
+
+				std::vector<std::string> models;
+
+				for (size_t i = 0; i < world->numStaticModels; i++)
+				{
+					auto* xmodel = world->staticModelList[i].xmodel;
+					if (xmodel && xmodel->name)
+					{
+						if (std::find(models.begin(), models.end(), xmodel->name) == models.end())
+						{
+							models.push_back(xmodel->name);
+						}
+					}
+				}
+
+				for (auto& mdl : models)
+				{
+					Game::Com_Printf(0, "xmodel,%s\n", mdl.data());
+				}
+			}
+
+			if (type == Game::XAssetType::ASSET_TYPE_XMODEL)
+			{
+				auto* model = asset.model;
+
+				if (name != model->name)
+				{
+					__debugbreak();
+				}
+			}
+#endif
+
 			if (Dvar::Var("r_noVoid").get<bool>() && type == Game::XAssetType::ASSET_TYPE_XMODEL && name == "void")
 			{
 				asset.model->numLods = 0;

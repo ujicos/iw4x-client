@@ -917,9 +917,26 @@ namespace Components
 				if (gameWorld->dpvs.smodelVisData[0][i])
 				{
 					std::string name = gameWorld->dpvs.smodelDrawInsts[i].model->name;
-
+			
 					if (models.find(name) == models.end()) models[name] = 1;
 					else models[name]++;
+				}
+			}
+
+			for (auto* entity = Game::g_entities; reinterpret_cast<int>(entity) < 0x19BD74A; entity++)
+			{
+				if (entity->classname)
+				{
+					std::string classname = Game::SL_ConvertToString(entity->classname);
+					std::string scriptClassName = Game::SL_ConvertToString(entity->script_classname);
+
+					if (classname == "script_model" || scriptClassName == "script_model")
+					{
+						auto model = Game::SL_ConvertToString(Game::G_ModelName(entity->model));
+						
+						if (models.find(model) != models.end()) models[model] = 1;
+						else models[model]++;
+					}
 				}
 			}
 

@@ -332,6 +332,9 @@ namespace Game
 	typedef int(__cdecl* G_GivePlayerWeapon_t)(void* pPS, int weaponIndex, char altModelIndex, int unk1);
 	extern G_GivePlayerWeapon_t G_GivePlayerWeapon;
 
+	typedef uint16_t (__cdecl* G_ModelName_t)(int index);
+	extern G_ModelName_t G_ModelName;
+
 	typedef void(__cdecl * GScr_LoadGameTypeScript_t)();
 	extern GScr_LoadGameTypeScript_t GScr_LoadGameTypeScript;
 

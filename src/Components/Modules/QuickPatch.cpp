@@ -428,6 +428,14 @@ namespace Components
 		return token;
 	}
 
+	void IN_ToggleADS_Throw_Down()
+	{
+		// IN_BreathSprint_Up
+		((void(*)())(0x5A5970))();
+		// IN_ToggleADS_Throw_Down
+		((void(*)())(0x5A5B10))();
+	}
+
 	QuickPatch::QuickPatch()
 	{
 		QuickPatch::FrameTime = 0;
@@ -502,6 +510,9 @@ namespace Components
 
 		// Make sure preDestroy is called when the game shuts down
 		Scheduler::OnShutdown(Loader::PreDestroy);
+
+		// stop sprinting on ads
+		Utils::Hook::Set<void*>(0x45E898, IN_ToggleADS_Throw_Down);
 
 		// protocol version (workaround for hacks)
 		Utils::Hook::Set<int>(0x4FB501, PROTOCOL);

@@ -1532,7 +1532,7 @@ namespace Components
 					{
 						static std::unordered_map<std::uint16_t, std::uint16_t> mapped_constants = 
 						{
-							//// mp_raid
+							// mp_raid
 							{ 33, 31 },
 							{ 34, 32 },
 							{ 36, 34 },
@@ -1551,7 +1551,7 @@ namespace Components
 							{ 269, 98 },
 							{ 277, 106 },
 
-							//// mp_dome
+							// mp_dome
 							{ 38, 36 },
 							{ 40, 38 },
 							{ 118, 86 },
@@ -1567,7 +1567,8 @@ namespace Components
 							auto techsetName = (*reinterpret_cast<Game::MaterialTechniqueSet**>(0x112AE8C))->name;
 
 							if (!strncmp(techsetName, "wc_unlit_add", 12) ||
-								!strncmp(techsetName, "wc_unlit_multiply", 17) )
+								!strncmp(techsetName, "wc_unlit_multiply", 17) ||
+								!strncmp(techsetName, "wc_unlit_distfalloff", 20) )
 							{
 								arg->u.codeConst.index = 116;
 							}

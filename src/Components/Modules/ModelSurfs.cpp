@@ -56,7 +56,9 @@ namespace Components
 			}
 #endif
 
-			Logger::Error("Loading model %s failed!", name.data());
+			Logger::Print("Loading model %s failed!\n", name.data());
+
+			return nullptr;
 		}
 
 		Game::CModelHeader header;

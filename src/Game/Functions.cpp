@@ -141,6 +141,7 @@ namespace Game
 	G_GetWeaponIndexForName_t G_GetWeaponIndexForName = G_GetWeaponIndexForName_t(0x49E540);
 	G_SpawnEntitiesFromString_t G_SpawnEntitiesFromString = G_SpawnEntitiesFromString_t(0x4D8840);
 	G_GivePlayerWeapon_t G_GivePlayerWeapon = G_GivePlayerWeapon_t(0x4B38B0);
+	G_ModelName_t G_ModelName = G_ModelName_t(0x5FC460);
 
 	GScr_LoadGameTypeScript_t GScr_LoadGameTypeScript = GScr_LoadGameTypeScript_t(0x4ED9A0);
 
