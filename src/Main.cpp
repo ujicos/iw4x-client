@@ -54,6 +54,8 @@ BOOL APIENTRY DllMain(HMODULE /*hModule*/, DWORD  ul_reason_for_call, LPVOID /*l
 
 		Steam::Proxy::RunMod();
 
+		
+
 		// Ensure we're working with our desired binary
 		char* _module = reinterpret_cast<char*>(0x400000);
 		auto hash1 = Utils::Cryptography::JenkinsOneAtATime::Compute(_module + 0x1000, 0x2D531F);  // .text

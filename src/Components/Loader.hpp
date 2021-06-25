@@ -131,5 +131,7 @@ namespace Components
 #include "Modules/StartupMessages.hpp"
 #include "Modules/Stats.hpp"
 #include "Modules/ViewModel.hpp"
+#include "Modules/MapExport.hpp"
+#include "Modules/Images.hpp"
 
 #include "Modules/Client.hpp"

@@ -206,6 +206,13 @@ namespace Components
 		}
 	}
 
+	void __fastcall Cmd_ExecuteServerStringStub(const char* text)
+	{
+		Game::Com_Printf(0, "%s\n", text);
+
+		((void(__fastcall*)(const char*))(0x609480))(text);
+	}
+
 	Command::Command()
 	{
 		AssertSize(Game::cmd_function_t, 24);
@@ -218,6 +225,7 @@ namespace Components
 		Utils::Hook::Nop(0x474846, 5);
 
 		Utils::Hook(0x6259FA, Command::ClientCommandStub, HOOK_CALL).install()->quick();
+		// Utils::Hook(0x60966F, Cmd_ExecuteServerStringStub, HOOK_CALL).install()->quick();
 
 		Command::AddSvAlt("give", [](int clientNum, Command::Params* params)
 		{

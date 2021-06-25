@@ -20,8 +20,19 @@ namespace Components
 			}
 		}
 
-		void BG_CalculateWeaponMovement_Bob(Game::weaponState_t*)
+		Game::dvar_t* vm_offset_x;
+		Game::dvar_t* vm_offset_y;
+		Game::dvar_t* vm_offset_z;
+
+		float ads_progress = 0.0f;
+
+		void MoveWeaponPosition(Game::weaponState_t* ws)
 		{
+			float frac = 1.0f - ads_progress;
+
+			ws->baseOrigin[0] = vm_offset_x->current.value * frac;
+			ws->baseOrigin[1] = vm_offset_y->current.value * frac;
+			ws->baseOrigin[2] = vm_offset_z->current.value * frac;
 		}
 
 		__declspec(naked) void BG_CalculateWeaponMovement_Bob_stub()
@@ -29,9 +40,12 @@ namespace Components
 			__asm
 			{
 				push esi
-				call BG_CalculateWeaponMovement_Bob
-				add esp, 4
-				retn
+				call MoveWeaponPosition
+
+				// Go do original function
+				pop esi
+				mov eax, 0x57CEB0
+				jmp eax
 			}
 		}
 
@@ -48,6 +62,8 @@ namespace Components
 
 		void DisableInspectIfAds(int, float weaponPos, int /*anim*/)
 		{
+			ads_progress = weaponPos;
+
 			// restore to idle animation if in ads state
 			if (weaponPos > 0 && inspecting)
 			{
@@ -71,11 +87,11 @@ namespace Components
 
 	ViewModel::ViewModel()
 	{
-		// vm_bob_move_scale = Game::Dvar_RegisterFloat("vm_bob_move_scale", 0.4f, 0.0f, 1000.0f, 0, "");
-		// vm_bob_rotate_scale = Game::Dvar_RegisterFloat("vm_bob_rotate_scale", 1.4f, 0.0f, 1000.0f, 0, "");
-		// vm_bob_time_scale = Game::Dvar_RegisterFloat("vm_bob_time_scale", 0.8f, 0.0f, 1000.0f, 0, "");
+		vm_offset_x = Game::Dvar_RegisterFloat("vm_offset_x", 0.0f, -1000.0f, 1000.0f, Game::DVAR_FLAG_SAVED, "Viewmodel offset of x.");
+		vm_offset_y = Game::Dvar_RegisterFloat("vm_offset_y", 0.0f, -1000.0f, 1000.0f, Game::DVAR_FLAG_SAVED, "Viewmodel offset of y.");
+		vm_offset_z = Game::Dvar_RegisterFloat("vm_offset_z", 0.0f, -1000.0f, 1000.0f, Game::DVAR_FLAG_SAVED, "Viewmodel offset of z.");
 		
-		// Utils::Hook(0x57CEB0, BG_CalculateWeaponMovement_Bob_stub, HOOK_JUMP).install()->quick();
+		Utils::Hook(0x4EC45A, BG_CalculateWeaponMovement_Bob_stub, HOOK_CALL).install()->quick();
 		Utils::Hook(0x59B6BC, PlayAdsAnim_stub, HOOK_CALL).install()->quick();
 
 		Command::Add("inspect", [](Command::Params*)

@@ -1201,16 +1201,39 @@ namespace Game
 
 	void G_InitializeAmmo(gentity_s* pSelf, int weaponIndex, int weaponModel, int hadWeapon)
 	{
-		const int g_init_ammo = 0x5D8DE0;
-
 		__asm
 		{
 			mov edi, pSelf
 			mov eax, weaponIndex
 			push weaponModel
 			push hadWeapon
-			call g_init_ammo
+			mov ecx, 0x5D8DE0
+			call ecx
 			add esp, 8
+		}
+	}
+
+	void Image_LoadFromData(GfxImage* image, GfxImageFileHeader* fileHeader, uint8_t* srcData)
+	{
+		__asm
+		{
+			push image
+			mov eax, fileHeader
+			mov edx, srcData
+			mov ecx, 0x53AAA0
+			call ecx
+			add esp, 4
+		}
+	}
+	
+	void Image_PicmipForSemantic(int semantic, Picmip* picmip)
+	{
+		__asm
+		{
+			mov eax, semantic
+			mov ecx, picmip
+			mov ebx, 0x51F3A0
+			call ebx
 		}
 	}
 #pragma optimize("", on)

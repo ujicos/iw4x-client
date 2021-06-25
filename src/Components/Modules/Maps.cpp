@@ -162,6 +162,12 @@ namespace Components
 			data.push_back({ patchZtZone.data(), zoneInfo->allocFlags, zoneInfo->freeFlags });
 		}
 
+		std::string patchZoneUsermap = Utils::String::VA("%s_patch", zoneInfo->name);
+		if (FastFiles::Exists(patchZoneUsermap))
+		{
+			data.push_back({ patchZoneUsermap.data(), zoneInfo->allocFlags, zoneInfo->freeFlags });
+		}
+
 		Utils::Merge(&data, zoneInfo, zoneCount);
 		
 		Game::XZoneInfo team;
@@ -763,7 +769,8 @@ namespace Components
 #endif
 		return Utils::Hook::Call<int16(int, Game::Bounds*)>(0x4416C0)(modelPointer, bounds);
 	}
-	
+
+
 	Maps::Maps()
 	{
 		Dvar::OnInit([]()
@@ -951,6 +958,53 @@ namespace Components
 				Game::R_AddCmdDrawText(Utils::String::VA("%d %s", model.second, model.first.data()), 0x7FFFFFFF, font, 15.0f, (height * scale + 1) * (i++ + 1) + 15.0f, scale, scale, 0.0f, color, Game::ITEM_TEXTSTYLE_NORMAL);
 			}
 		}, true);
+
+		auto* sv_disablePlayerClips = Game::Dvar_RegisterBool("sv_disablePlayerClips", false, Game::DVAR_FLAG_REPLICATED, "Disable all player clips (aka invisible walls)");
+
+		AssetHandler::OnLoad([sv_disablePlayerClips](Game::XAssetType type, Game::XAssetHeader asset, const std::string&, bool*)
+		{
+			if(type == Game::ASSET_TYPE_CLIPMAP_MP || type == Game::ASSET_TYPE_CLIPMAP_SP)
+			{
+				if (sv_disablePlayerClips->current.enabled)
+				{
+					auto* cm = asset.clipMap;
+
+					for (size_t i = 0; i < cm->numBrushes; i++)
+					{
+						auto* contents = &cm->brushContents[i];
+
+						// remove player clip
+						if (*contents & 0x10000)
+							*contents &= ~0x10000;
+					}
+				}
+			}
+		});
+
+		AssetHandler::OnFind(Game::XAssetType::ASSET_TYPE_MATERIAL, [](Game::XAssetType type, const std::string& name) {
+			Game::XAssetHeader header = Game::DB_FindXAssetHeader(type, name.data());
+			auto* material = header.material;
+
+			if (material->textureTable &&
+				material->textureTable->u.image->name == "default"s &&
+				name.find("preview_") != std::string::npos)
+			{
+				std::string uiFastfile = name.data() + 8;
+
+				uiFastfile += "_ui";
+
+				Game::Com_Printf(0, "Trying to load %s\n", uiFastfile.data());
+
+				if (FastFiles::Exists(uiFastfile))
+				{
+					Game::XZoneInfo info = { uiFastfile.data(), 2, 0 };
+					Game::DB_LoadXAssets(&info, 1, 0);
+				}
+
+			}
+
+			return header;
+		});
 	}
 
 	Maps::~Maps()

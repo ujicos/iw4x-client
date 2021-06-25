@@ -246,7 +246,7 @@ namespace Components
 			paths.push_back(Utils::String::VA("%s\\", modDir.data()));
 		}
 
-		if (Utils::String::StartsWith(file, "mp_") || Utils::String::StartsWith(file, "patch_mp_"))
+		if (Utils::String::StartsWith(file, "mp_"))
 		{
 			std::string zone = file;
 			if (Utils::String::EndsWith(zone, ".ff"))
@@ -261,9 +261,14 @@ namespace Components
 				Utils::String::Replace(zone, "_load", "");
 			}
 
-			if (Utils::String::StartsWith(zone, "patch_"))
+			if (Utils::String::EndsWith(zone, "_patch"))
 			{
-				Utils::String::Replace(zone, "patch_", "");
+				Utils::String::Replace(zone, "_patch", "");
+			}
+
+			if (Utils::String::EndsWith(zone, "_ui"))
+			{
+				Utils::String::Replace(zone, "_ui", "");
 			}
 
 			if (Utils::IO::FileExists(Utils::String::VA("usermaps\\%s\\%s.ff", zone.data(), filename.data())))

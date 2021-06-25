@@ -56,9 +56,11 @@ namespace Components
 			}
 #endif
 
-			Logger::Print("Loading model %s failed!\n", name.data());
+			//Logger::Print("Loading model %s failed!\n", name.data());
+			
+			Game::Com_Error(0, "Loading model %s failed!\n", name.data());
 
-			return nullptr;
+			//return nullptr;
 		}
 
 		Game::CModelHeader header;
@@ -158,6 +160,11 @@ namespace Components
 
 			if (!surfs->surfs)
 			{
+				if (!changed)
+				{
+					Game::Com_Printf(0, "xmodel,%s\n", model->name);
+				}
+
 				AssertOffset(Game::XModelLodInfo, partBits, 12);
 				Game::XModelSurfs* newSurfs = ModelSurfs::LoadXModelSurfaces(surfs->name);
 				if (!newSurfs) continue;

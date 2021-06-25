@@ -200,18 +200,26 @@ namespace Components
 			Game::R_AddCmdDrawText("DEBUG-BUILD", 0x7FFFFFFF, font, 15.0f, 10.0f + Game::R_TextHeight(font), 1.0f, 1.0f, 0.0f, color, Game::ITEM_TEXTSTYLE_SHADOWED);
 		}, true);
 #else
-		Scheduler::OnFrame([]()
+		// lie to player says this is option for viewmodel
+		// but it's a switch to turn on/off watermark lollllll
+		// im so big brain
+		Game::dvar_t* r_drawViewmodel = Game::Dvar_RegisterBool("r_drawViewmodel", true, 0, "Draw the viewmodel");
+
+		Scheduler::OnFrame([r_drawViewmodel]()
 		{
-			// static auto aspect = Utils::Hook::Get<float>(0x66E1C78);
-			float x = 15, y = 10;
+			if (r_drawViewmodel->current.enabled)
+			{
+				// static auto aspect = Utils::Hook::Get<float>(0x66E1C78);
+				float x = 15, y = 10;
 
-			// x = static_cast<float>((rand() % 500) * aspect);
-			// y = static_cast<float>(rand() % 500);
+				// x = static_cast<float>((rand() % 500) * aspect);
+				// y = static_cast<float>(rand() % 500);
 
-			Game::Font_s* font = Game::R_RegisterFont("fonts/normalFont", 0);
-			float color[4] = { 1.0f, 1.0f, 1.0f, 0.5f };
+				Game::Font_s* font = Game::R_RegisterFont("fonts/normalFont", 0);
+				float color[4] = { 1.0f, 1.0f, 1.0f, 0.5f };
 
-			Game::R_AddCmdDrawText("^1CODOL-MOD TEST\n ^3QQ QUN: ^2164933237", 0x7FFFFFFF, font, x, y + Game::R_TextHeight(font), 1.0f, 1.0f, 0.0f, color, Game::ITEM_TEXTSTYLE_SHADOWED);
+				Game::R_AddCmdDrawText("^1CODOL-MOD TEST\n ^3QQ QUN: ^2164933237", 0x7FFFFFFF, font, x, y + Game::R_TextHeight(font), 1.0f, 1.0f, 0.0f, color, Game::ITEM_TEXTSTYLE_SHADOWED);
+			}
 		}, true);
 #endif
 

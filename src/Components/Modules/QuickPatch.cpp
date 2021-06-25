@@ -431,9 +431,11 @@ namespace Components
 	void IN_ToggleADS_Throw_Down()
 	{
 		// IN_BreathSprint_Up
-		((void(*)())(0x5A5970))();
+		//((void(*)())(0x5A5970))();
+		Game::Cbuf_AddText(0, "-breath_sprint");
 		// IN_ToggleADS_Throw_Down
 		((void(*)())(0x5A5B10))();
+		
 	}
 
 	QuickPatch::QuickPatch()

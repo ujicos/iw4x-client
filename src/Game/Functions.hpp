@@ -930,4 +930,7 @@ namespace Game
 	void R_AddDebugBounds(float* color, Bounds* b, const float(*quat)[4]);
 
 	void G_InitializeAmmo(gentity_s* pSelf, int weaponIndex, int weaponModel, int hadWeapon);
+
+	void Image_LoadFromData(GfxImage* image, GfxImageFileHeader* fileHeader, uint8_t* srcData);
+	void Image_PicmipForSemantic(int semantic, Picmip* picmip);
 }

@@ -6,8 +6,14 @@ namespace Components
 	{
 		Game::XAssetHeader header = { nullptr };
 
+		// prevent crash
+		if (ZoneBuilder::IsEnabled() && 
+			FileSystem::File(Utils::String::VA("weapons/mp/defaultweapon_mp", filename.data())).exists())
+		{
+			header.data = Game::BG_LoadWeaponDef_LoadObj("defaultweapon_mp");
+		}
 		// Try loading raw weapon
-		if (FileSystem::File(Utils::String::VA("weapons/mp/%s", filename.data())).exists())
+		else if (FileSystem::File(Utils::String::VA("weapons/mp/%s", filename.data())).exists())
 		{
 			header.data = Game::BG_LoadWeaponDef_LoadObj(filename.data());
 		}
