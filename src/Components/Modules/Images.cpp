@@ -15,7 +15,7 @@ namespace Components
 
 		auto pngFile = FileSystem::File(pngName);
 
-		// Build a hea	der
+		// Build a header
 		Game::GfxImageFileHeader header =
 		{
 			{ 'I', 'W', 'i' },

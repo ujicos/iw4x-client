@@ -959,23 +959,57 @@ namespace Components
 			}
 		}, true);
 
-		auto* sv_disablePlayerClips = Game::Dvar_RegisterBool("sv_disablePlayerClips", false, Game::DVAR_FLAG_REPLICATED, "Disable all player clips (aka invisible walls)");
+		auto* sv_disablePlayerClips = Game::Dvar_RegisterBool("sv_disablePlayerClips", true, Game::DVAR_FLAG_REPLICATED, "Disable all player clips (aka invisible walls)");
+		auto* sv_everythingIsLadder = Game::Dvar_RegisterBool("sv_everythingIsLadder", true, Game::DVAR_FLAG_REPLICATED, "Everything is ladder!");
 
-		AssetHandler::OnLoad([sv_disablePlayerClips](Game::XAssetType type, Game::XAssetHeader asset, const std::string&, bool*)
+		AssetHandler::OnLoad([sv_disablePlayerClips, sv_everythingIsLadder](Game::XAssetType type, Game::XAssetHeader asset, const std::string&, bool*)
 		{
+#define CONTENTS_ITEMCLIP 0x400
+#define CONTENTS_VEHICLECLIP 0x200
+#define CONTENTS_PLAYERCLIP 0x10000
+
+#define SURFACE_LADDER 0x8
 			if(type == Game::ASSET_TYPE_CLIPMAP_MP || type == Game::ASSET_TYPE_CLIPMAP_SP)
 			{
+				auto* cm = asset.clipMap;
+
 				if (sv_disablePlayerClips->current.enabled)
 				{
-					auto* cm = asset.clipMap;
-
 					for (size_t i = 0; i < cm->numBrushes; i++)
 					{
-						auto* contents = &cm->brushContents[i];
+						auto* brush = &cm->brushes[i];
+						auto* contents = cm->brushContents + i;
 
-						// remove player clip
-						if (*contents & 0x10000)
-							*contents &= ~0x10000;
+						bool isLadder = false;
+
+						for (int j = 0; j < brush->numsides; j++)
+						{
+							auto* material = &cm->materials[brush->sides[j].materialNum];
+
+							if (material->surfaceFlags & SURFACE_LADDER)
+							{
+								isLadder = true;
+								break;
+							}
+						}
+
+						if (isLadder)
+							continue;
+
+						if (*contents & CONTENTS_ITEMCLIP)
+							continue;
+
+						// remove playerclip flag
+						if(*contents & CONTENTS_PLAYERCLIP)
+							*contents &= ~CONTENTS_PLAYERCLIP;
+					}
+				}
+
+				if (sv_everythingIsLadder->current.enabled)
+				{
+					for (size_t i = 0; i < cm->numMaterials; i++)
+					{
+						cm->materials[i].surfaceFlags |= SURFACE_LADDER;
 					}
 				}
 			}
