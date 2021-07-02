@@ -746,7 +746,7 @@ namespace Components
 	void Maps::G_SpawnTurretHook(Game::gentity_s* ent, int unk, int unk2)
 	{
 		if (Maps::CurrentMainZone == "mp_backlot_sh"s || Maps::CurrentMainZone == "mp_con_spring"s || 
-			Maps::CurrentMainZone == "mp_mogadishu_sh"s || Maps::CurrentMainZone == "mp_nightshift_sh"s)
+			Maps::CurrentMainZone == "mp_mogadishu_sh"s || Maps::CurrentMainZone == "mp_nightshift_sh"s || Maps::CurrentMainZone == "mp_wasteland_sh"s)
 		{
 			return;
 		}
@@ -1019,7 +1019,7 @@ namespace Components
 			Game::XAssetHeader header = Game::DB_FindXAssetHeader(type, name.data());
 			auto* material = header.material;
 
-			if (material->textureTable &&
+			if (material && material->textureTable &&
 				material->textureTable->u.image->name == "default"s &&
 				name.find("preview_") != std::string::npos)
 			{

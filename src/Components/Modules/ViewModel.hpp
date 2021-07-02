@@ -6,5 +6,6 @@ namespace Components
 	{
 	public:
 		ViewModel();
+		static void LoadOrUpdateAttachmentSet(const std::string& weaponName);
 	};
 }

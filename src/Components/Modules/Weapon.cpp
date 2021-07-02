@@ -6,6 +6,8 @@ namespace Components
 	{
 		Game::XAssetHeader header = { nullptr };
 
+		ViewModel::LoadOrUpdateAttachmentSet(filename);
+
 		// prevent crash
 		if (ZoneBuilder::IsEnabled() && 
 			FileSystem::File(Utils::String::VA("weapons/mp/defaultweapon_mp", filename.data())).exists())

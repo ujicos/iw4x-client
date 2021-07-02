@@ -213,11 +213,375 @@ namespace Components
 		return result;
 	}
 
+	void LoadWeaponCompleteDef461()
+	{
+		char* varWeaponCompleteDef = *reinterpret_cast<char**>(0x112A9F4);
+
+		Game::Load_Stream(true, varWeaponCompleteDef, 4124);
+
+		Game::DB_PushStreamPos(3);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 0);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 4);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 8);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 12);
+		Game::Load_XString(false);
+
+		for (int i = 0, offset = 16; i < 2; ++i, offset += 4)
+		{
+			*Game::varXModelPtr = reinterpret_cast<Game::XModel**>(varWeaponCompleteDef + offset);
+			Game::Load_XModelPtr(false);
+		}
+
+		for (int i = 0, offset = 24; i < 2; ++i, offset += 4)
+		{
+			*Game::varXModelPtr = reinterpret_cast<Game::XModel**>(varWeaponCompleteDef + offset);
+			Game::Load_XModelPtr(false);
+		}
+
+		*Game::varXModelPtr = reinterpret_cast<Game::XModel**>(varWeaponCompleteDef + 32);
+		Game::Load_XModelPtr(false);
+		*Game::varXModelPtr = reinterpret_cast<Game::XModel**>(varWeaponCompleteDef + 36);
+		Game::Load_XModelPtr(false);
+		*Game::varXModelPtr = reinterpret_cast<Game::XModel**>(varWeaponCompleteDef + 40);
+		Game::Load_XModelPtr(false);
+		*Game::varXModelPtr = reinterpret_cast<Game::XModel**>(varWeaponCompleteDef + 44);
+		Game::Load_XModelPtr(false);
+		*Game::varXModelPtr = reinterpret_cast<Game::XModel**>(varWeaponCompleteDef + 48);
+		Game::Load_XModelPtr(false);
+		*Game::varXModelPtr = reinterpret_cast<Game::XModel**>(varWeaponCompleteDef + 52);
+		Game::Load_XModelPtr(false);
+
+		// Game::varScriptString = varWeaponCompleteDef + 60;
+		// Game::Load_ScriptStringArray(0, 32)
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 124);
+		Game::Load_XStringArray(false, 62);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 124 + (62 * 4));
+		Game::Load_XStringArray(false, 62);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 124 + (62 * 4 * 2));
+		Game::Load_XStringArray(false, 62);
+
+		// Game::varScriptString = varWeaponCompleteDef + 868;
+		// Game::Load_ScriptStringArray(0, 16)
+
+		// Game::varScriptString = varWeaponCompleteDef + 900;
+		// Game::Load_ScriptStringArray(0, 16)
+
+		// Game::varScriptString = varWeaponCompleteDef + 932;
+		// Game::Load_ScriptStringArray(0, 16)
+
+		// Game::varScriptString = varWeaponCompleteDef + 964;
+		// Game::Load_ScriptStringArray(0, 16)
+
+		// Game::varScriptString = varWeaponCompleteDef + 996;
+		// Game::Load_ScriptStringArray(0, 16)
+
+		for (int i = 0; i < 16; i++)
+		{
+			*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 1028 + (i * 4));
+			Game::Load_FxEffectDefHandle(false);
+		}
+
+		// Game::varScriptString = varWeaponCompleteDef + 1092;
+		// Game::Load_ScriptStringArray(0, 16)
+
+		for (int i = 0; i < 16; i++)
+		{
+			*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 1124 + (i * 4));
+			Game::Load_FxEffectDefHandle(false);
+		}
+
+		for (int i = 0; i < 16; i++)
+		{
+			*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 1188 + (i * 4));
+			Game::Load_FxEffectDefHandle(false);
+		}
+
+		// Game::varScriptString = varWeaponCompleteDef + 1252;
+		// Game::Load_ScriptStringArray(0, 16)
+
+		// Game::varScriptString = varWeaponCompleteDef + 1284;
+		// Game::Load_ScriptStringArray(0, 16)
+
+		for (int i = 0; i < 16; i++)
+		{
+			*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 1316 + (i * 4));
+			Game::Load_FxEffectDefHandle(false);
+		}
+
+		// Game::varScriptString = varWeaponCompleteDef + 1380;
+		// Game::Load_ScriptStringArray(0, 16)
+
+		// 1444 - 1460, 5 fx effect def handle
+		for (int i = 0; i < 5; i++)
+		{
+			*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 1444 + (i * 4));
+			Game::Load_FxEffectDefHandle(false);
+		}
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 1464);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 1472);
+		Game::Load_XString(false);
+
+		// 1476 - 1704 (32 + 26)
+		for (int i = 0, offset = 1476; i < 58; ++i, offset += 4)
+		{
+			*Game::varsnd_alias_list_name = reinterpret_cast<Game::snd_alias_list_t**>(varWeaponCompleteDef + offset);
+			Game::Load_SndAliasCustom(*Game::varsnd_alias_list_name);
+		}
+
+		if (*reinterpret_cast<void**>(varWeaponCompleteDef + 1708))
+		{
+			if (*reinterpret_cast<DWORD*>(varWeaponCompleteDef + 1708) == -1)
+			{
+				*reinterpret_cast<void**>(varWeaponCompleteDef + 1708) = Game::DB_AllocStreamPos(3);
+				*Game::varsnd_alias_list_name = *reinterpret_cast<Game::snd_alias_list_t***>(varWeaponCompleteDef + 1708);
+
+				Game::Load_snd_alias_list_nameArray(true, 31);
+			}
+		}
+
+		if (*reinterpret_cast<void**>(varWeaponCompleteDef + 1712))
+		{
+			if (*reinterpret_cast<DWORD*>(varWeaponCompleteDef + 1712) == -1)
+			{
+				*reinterpret_cast<void**>(varWeaponCompleteDef + 1712) = Game::DB_AllocStreamPos(3);
+				*Game::varsnd_alias_list_name = *reinterpret_cast<Game::snd_alias_list_t***>(varWeaponCompleteDef + 1712);
+
+				Game::Load_snd_alias_list_nameArray(true, 31);
+			}
+		}
+
+		for (int offset = 1716; offset <= 1728; offset += 4)
+		{
+			*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + offset);
+			Game::Load_FxEffectDefHandle(false);
+		}
+
+		static int matOffsets1[] = { 1732, 1736, 1952, 1956, 1960, 1964, 1968, 1972, 1980, 1988, 2000, 2004, 2008, 2012 };
+		for (int i = 0; i < ARRAYSIZE(matOffsets1); ++i)
+		{
+			*Game::varMaterialHandle = reinterpret_cast<Game::Material**>(varWeaponCompleteDef + matOffsets1[i]);
+			Game::Load_MaterialHandle(false);
+		}
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 2024);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 2032);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 2048);
+		Game::Load_XString(false);
+
+		for (int offset = 2332; offset <= 2344; offset += 4)
+		{
+			*Game::varMaterialHandle = reinterpret_cast<Game::Material**>(varWeaponCompleteDef + offset);
+			Game::Load_MaterialHandle(false);
+		}
+
+		*Game::varPhysCollmapPtr = reinterpret_cast<Game::PhysCollmap**>(varWeaponCompleteDef + 2544);
+		Game::Load_PhysCollmapPtr(false);
+
+		*Game::varPhysPresetPtr = reinterpret_cast<Game::PhysPreset**>(varWeaponCompleteDef + 2548);
+		Game::Load_PhysPresetPtr(false);
+
+		*Game::varXModelPtr = reinterpret_cast<Game::XModel**>(varWeaponCompleteDef + 2656);
+		Game::Load_XModelPtr(false);
+
+		*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 2664);
+		Game::Load_FxEffectDefHandle(false);
+
+		*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 2668);
+		Game::Load_FxEffectDefHandle(false);
+
+		*Game::varsnd_alias_list_name = reinterpret_cast<Game::snd_alias_list_t**>(varWeaponCompleteDef + 2672);
+		Game::Load_SndAliasCustom(*Game::varsnd_alias_list_name);
+
+		*Game::varsnd_alias_list_name = reinterpret_cast<Game::snd_alias_list_t**>(varWeaponCompleteDef + 2676);
+		Game::Load_SndAliasCustom(*Game::varsnd_alias_list_name);
+
+		*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 2952);
+		Game::Load_FxEffectDefHandle(false);
+
+		*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 2956);
+		Game::Load_FxEffectDefHandle(false);
+
+		*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 2984);
+		Game::Load_FxEffectDefHandle(false);
+
+		*Game::varsnd_alias_list_name = reinterpret_cast<Game::snd_alias_list_t**>(varWeaponCompleteDef + 2988);
+		Game::Load_SndAliasCustom(*Game::varsnd_alias_list_name);
+
+		*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 2992);
+		Game::Load_FxEffectDefHandle(false);
+
+		*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 2996);
+		Game::Load_FxEffectDefHandle(false);
+
+		*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 3000);
+		Game::Load_FxEffectDefHandle(false);
+
+		*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 3004);
+		Game::Load_FxEffectDefHandle(false);
+
+		*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 3008);
+		Game::Load_FxEffectDefHandle(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3196);
+		Game::Load_XString(false);
+
+		if (*reinterpret_cast<DWORD*>(varWeaponCompleteDef + 3204) == -1)
+		{
+			void* vec2 = Game::DB_AllocStreamPos(3);
+			*reinterpret_cast<void**>(varWeaponCompleteDef + 3204) = vec2;
+
+			Game::Load_Stream(true, vec2, 8 * *reinterpret_cast<short*>(varWeaponCompleteDef + 3780));
+		}
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3200);
+		Game::Load_XString(false);
+
+		if (*reinterpret_cast<DWORD*>(varWeaponCompleteDef + 3208) == -1)
+		{
+			void* vec2 = Game::DB_AllocStreamPos(3);
+			*reinterpret_cast<void**>(varWeaponCompleteDef + 3208) = vec2;
+
+			Game::Load_Stream(true, vec2, 8 * *reinterpret_cast<short*>(varWeaponCompleteDef + 3782));
+		}
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3292);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3324);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3328);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3484);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3488);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3492);
+		Game::Load_XString(false);
+
+		*Game::varTracerDefPtr = reinterpret_cast<Game::TracerDef**>(varWeaponCompleteDef + 3496);
+		Game::Load_TracerDefPtr(false);
+
+		*Game::varTracerDefPtr = reinterpret_cast<Game::TracerDef**>(varWeaponCompleteDef + 3500);
+		Game::Load_TracerDefPtr(false);
+
+		*Game::varTracerDefPtr = reinterpret_cast<Game::TracerDef**>(varWeaponCompleteDef + 3504);
+		Game::Load_TracerDefPtr(false);
+
+		*Game::varsnd_alias_list_name = reinterpret_cast<Game::snd_alias_list_t**>(varWeaponCompleteDef + 3532);
+		Game::Load_SndAliasCustom(*Game::varsnd_alias_list_name); // 2848
+
+		*Game::varFxEffectDefHandle = reinterpret_cast<Game::FxEffectDef**>(varWeaponCompleteDef + 3536);
+		Game::Load_FxEffectDefHandle(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3540);
+		Game::Load_XString(false);
+
+		*Game::varsnd_alias_list_name = reinterpret_cast<Game::snd_alias_list_t**>(varWeaponCompleteDef + 3556);
+		Game::Load_SndAliasCustom(*Game::varsnd_alias_list_name);
+
+		*Game::varsnd_alias_list_name = reinterpret_cast<Game::snd_alias_list_t**>(varWeaponCompleteDef + 3560);
+		Game::Load_snd_alias_list_nameArray(false, 4);
+
+		*Game::varsnd_alias_list_name = reinterpret_cast<Game::snd_alias_list_t**>(varWeaponCompleteDef + 3576);
+		Game::Load_snd_alias_list_nameArray(false, 4);
+
+		*Game::varsnd_alias_list_name = reinterpret_cast<Game::snd_alias_list_t**>(varWeaponCompleteDef + 3592);
+		Game::Load_SndAliasCustom(*Game::varsnd_alias_list_name);
+
+		*Game::varsnd_alias_list_name = reinterpret_cast<Game::snd_alias_list_t**>(varWeaponCompleteDef + 3596);
+		Game::Load_SndAliasCustom(*Game::varsnd_alias_list_name);
+
+		for (int i = 0, offset = 3664; i < 6; ++i, offset += 4)
+		{
+			*Game::varsnd_alias_list_name = reinterpret_cast<Game::snd_alias_list_t**>(varWeaponCompleteDef + offset);
+			Game::Load_SndAliasCustom(*Game::varsnd_alias_list_name);
+		}
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3716);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3732);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3736);
+		Game::Load_XString(false);
+
+		*Game::varMaterialHandle = reinterpret_cast<Game::Material**>(varWeaponCompleteDef + 3744);
+		Game::Load_MaterialHandle(false);
+
+		*Game::varMaterialHandle = reinterpret_cast<Game::Material**>(varWeaponCompleteDef + 3748);
+		Game::Load_MaterialHandle(false);
+
+		*Game::varMaterialHandle = reinterpret_cast<Game::Material**>(varWeaponCompleteDef + 3752);
+		Game::Load_MaterialHandle(false);
+
+		*Game::varMaterialHandle = reinterpret_cast<Game::Material**>(varWeaponCompleteDef + 3756);
+		Game::Load_MaterialHandle(false);
+
+		if (*reinterpret_cast<DWORD*>(varWeaponCompleteDef + 3784) == -1)
+		{
+			void* vec2 = Game::DB_AllocStreamPos(3);
+			*reinterpret_cast<void**>(varWeaponCompleteDef + 3784) = vec2;
+
+			Game::Load_Stream(true, vec2, 8 * *reinterpret_cast<short*>(varWeaponCompleteDef + 3780));
+		}
+
+		if (*reinterpret_cast<DWORD*>(varWeaponCompleteDef + 3788) == -1)
+		{
+			void* vec2 = Game::DB_AllocStreamPos(3);
+			*reinterpret_cast<void**>(varWeaponCompleteDef + 3788) = vec2;
+
+			Game::Load_Stream(true, vec2, 8 * *reinterpret_cast<short*>(varWeaponCompleteDef + 3782));
+		}
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3880);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3884);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 3888);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 4000);
+		Game::Load_XString(false);
+
+		*Game::varXString = reinterpret_cast<char**>(varWeaponCompleteDef + 4016);
+		Game::Load_XString(false);
+
+		Game::DB_PopStreamPos();
+	}
+
 	void Zones::LoadWeaponCompleteDef()
 	{
 		if (Zones::ZoneVersion < VERSION_ALPHA2)
 		{
 			return Utils::Hook::Call<void(bool)>(0x4AE7B0)(true);
+		}
+		else if (Zones::ZoneVersion == 461)
+		{
+			return LoadWeaponCompleteDef461();
 		}
 
 		// setup structures we use
@@ -3459,9 +3823,29 @@ namespace Components
 		
 		Game::DB_PopStreamPos();
 	}
+
+	void Load_XAssetHeader_Hook(bool atStreamStart)
+	{
+		Game::DB_PushStreamPos(0);
+		Game::Load_Stream(atStreamStart, Game::varXAsset, 8);
+		Game::DB_PopStreamPos();
+
+		if(*Game::varXAsset)
+			Game::Com_Printf(0, "Loading %s\n", Game::DB_GetXAssetTypeName((*Game::varXAsset)->type));
+
+		__asm 
+		{
+			push 0
+			mov ecx, 0x4EFDD0
+			call ecx
+			add esp, 4
+		}
+	}
 	
 	Zones::Zones()
 	{
+		// Utils::Hook(0x5B9AC8, Load_XAssetHeader_Hook, HOOK_CALL).install()->quick();
+
 		Zones::ZoneVersion = 0;
 
 		Command::Add("decryptImages", [](Command::Params*)

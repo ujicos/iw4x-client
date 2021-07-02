@@ -180,6 +180,7 @@ namespace Components
 			Game::StructuredDataDefSet* data = asset.structuredDataDefSet;
 			if (!data) return;
 
+#if 0
 			for (size_t i = 0; i < data->defCount; i++)
 			{
 				auto* defData = &data->defs[i];
@@ -200,6 +201,7 @@ namespace Components
 				}
 				Game::Com_Printf(0, "}\n");
 			}
+#endif
 
 			if (data->defCount != 1)
 			{

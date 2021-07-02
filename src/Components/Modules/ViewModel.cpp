@@ -85,6 +85,74 @@ namespace Components
 		}
 	}
 
+	struct Attachment
+	{
+		std::string xmodel;
+		std::string bone;
+	};
+
+	static std::unordered_map<std::string, std::vector<Attachment>> weapon_attachment_map;
+
+	void AddWeaponAttachments(const std::string &weaponName, std::vector<Game::DObjModel_s>& models)
+	{
+		if (weapon_attachment_map.find(weaponName) != weapon_attachment_map.end())
+		{
+			for (auto& attach : weapon_attachment_map[weaponName])
+			{
+				auto *xmodel = Game::DB_FindXAssetHeader(Game::ASSET_TYPE_XMODEL, attach.xmodel.data()).model;
+				auto boneName = Game::SL_GetString(attach.bone.data(), 0);
+
+				Game::DObjModel_s dobjModel = { xmodel, boneName, true };
+				models.push_back(dobjModel);
+			}
+		}
+	}
+
+	void* CreateViewmodelDObj(Game::DObjModel_s* dobjModels, uint16_t numModels, void* tree, int handle, int localClientNum)
+	{
+		std::vector<Game::DObjModel_s> models;
+		models.resize(numModels);
+
+		std::memcpy(models.data(), dobjModels, numModels * sizeof(Game::DObjModel_s));
+
+		int weap_index = Game::BG_GetViewmodelWeaponIndex(0x7F0F78);
+		std::string weaponName = Game::BG_GetWeaponName(weap_index);
+
+		AddWeaponAttachments(weaponName, models);
+		
+		return Game::Com_ClientDObjCreate(models.data(), static_cast<uint16_t>(models.size()), tree, handle, localClientNum);
+	}
+
+	void ViewModel::LoadOrUpdateAttachmentSet(const std::string &weaponName)
+	{
+		auto file = FileSystem::File(Utils::String::VA("attachsets/%s", weaponName.data()));
+
+		if (file.exists())
+		{
+			std::string errors;
+			auto attachset = json11::Json::parse(file.getBuffer(), errors);
+
+			if (!errors.empty())
+			{
+				Components::Logger::Error("Attachment set %s is broken: %s.", weaponName.data(), errors.data());
+			}
+
+			if (!attachset.is_object())
+			{
+				Components::Logger::Error("Attachment set %s is invaild.", weaponName.data(), errors.data());
+			}
+
+			std::vector<Attachment> attachs;
+
+			for (auto& attach : attachset.object_items())
+			{
+				attachs.push_back({ attach.first, attach.second.string_value() });	
+			}
+
+			weapon_attachment_map[weaponName] = attachs;
+		}
+	}
+
 	ViewModel::ViewModel()
 	{
 		vm_offset_x = Game::Dvar_RegisterFloat("vm_offset_x", 0.0f, -1000.0f, 1000.0f, Game::DVAR_FLAG_SAVED, "Viewmodel offset of x.");
@@ -93,6 +161,7 @@ namespace Components
 		
 		Utils::Hook(0x4EC45A, BG_CalculateWeaponMovement_Bob_stub, HOOK_CALL).install()->quick();
 		Utils::Hook(0x59B6BC, PlayAdsAnim_stub, HOOK_CALL).install()->quick();
+		Utils::Hook(0x59C196, CreateViewmodelDObj, HOOK_CALL).install()->quick();
 
 		Command::Add("inspect", [](Command::Params*)
 		{

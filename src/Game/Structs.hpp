@@ -5293,6 +5293,13 @@ namespace Game
 		int iOffset;
 		int iFieldType;
 	};
+
+	struct DObjModel_s
+	{
+		XModel* model;
+		__int16 boneName;
+		bool ignoreCollision;
+	};
 #pragma endregion
 
 #ifndef IDA

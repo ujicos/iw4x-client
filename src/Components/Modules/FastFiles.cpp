@@ -188,6 +188,11 @@ namespace Components
 			data.push_back({ "iw4x_code_post_gfx_mp", zoneInfo->allocFlags, zoneInfo->freeFlags });
 		}
 
+		if (FastFiles::Exists("test"))
+		{
+			data.push_back({ "test", zoneInfo->allocFlags, zoneInfo->freeFlags });
+		}
+
 		Game::DB_LoadXAssets(data.data(), data.size(), sync);
 	}
 

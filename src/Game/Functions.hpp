@@ -136,6 +136,9 @@ namespace Game
 	typedef void(__cdecl * Com_SetSlowMotion_t)(float start, float end, int duration);
 	extern Com_SetSlowMotion_t Com_SetSlowMotion;
 
+	typedef void* (__cdecl* Com_ClientDObjCreate_t)(DObjModel_s* dobjModels, uint16_t numModels, void* tree, int handle, int localClientNum);
+	extern Com_ClientDObjCreate_t Com_ClientDObjCreate;
+
 	typedef char* (__cdecl * Con_DrawMiniConsole_t)(int localClientNum, int xPos, int yPos, float alpha);
 	extern Con_DrawMiniConsole_t Con_DrawMiniConsole;
 
@@ -850,6 +853,7 @@ namespace Game
 	extern TracerDef*** varTracerDefPtr;
 	extern XModel*** varXModelPtr;
 	extern XModel** varXModel;
+	extern XAsset** varXAsset;
 	extern PathData** varPathData;
 	extern const char** varConstChar;
 	extern Material*** varMaterialHandle;

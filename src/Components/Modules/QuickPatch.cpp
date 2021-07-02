@@ -428,6 +428,49 @@ namespace Components
 		return token;
 	}
 
+	char* ParseShellShock_Stub(const char** data_p)
+	{
+		static std::unordered_map<std::string, std::string> replace_list = {
+			{ "66","bg_shock_screenType" },
+			{ "67","bg_shock_screenBlurBlendTime"},
+			{ "68","bg_shock_screenBlurBlendFadeTime"},
+			{ "69","bg_shock_screenFlashWhiteFadeTime"},
+			{ "70","bg_shock_screenFlashShotFadeTime"},
+			{ "71","bg_shock_viewKickPeriod"},
+			{ "72","bg_shock_viewKickRadius"},
+			{ "73","bg_shock_viewKickFadeTime"},
+			{ "78","bg_shock_sound"},
+			{ "74","bg_shock_soundLoop"},
+			{ "75","bg_shock_soundLoopSilent"},
+			{ "76","bg_shock_soundEnd"},
+			{ "77","bg_shock_soundEndAbort"},
+			{ "79","bg_shock_soundFadeInTime"},
+			{ "80","bg_shock_soundFadeOutTime"},
+			{ "81","bg_shock_soundLoopFadeTime"},
+			{ "82","bg_shock_soundLoopEndDelay"},
+			{ "83","bg_shock_soundRoomType"},
+			{ "84","bg_shock_soundDryLevel"},
+			{ "85","bg_shock_soundWetLevel"},
+			{ "86","bg_shock_soundModEndDelay"},
+
+			// guessed, not sure
+			{ "87","bg_shock_lookControl"},
+			{ "88","bg_shock_lookControl_maxpitchspeed"},
+			{ "89","bg_shock_lookControl_maxyawspeed"},
+			{ "90","bg_shock_lookControl_mousesensitivityscale"},
+			{ "91","bg_shock_lookControl_fadeTime"},
+			{ "92","bg_shock_movement"}
+		};
+
+
+		auto token = Game::Com_Parse(data_p);
+		if (replace_list.find(token) != replace_list.end())
+		{
+			return replace_list[token].data();
+		}
+		return token;
+	}
+
 	void IN_ToggleADS_Throw_Down()
 	{
 		// IN_BreathSprint_Up
@@ -759,6 +802,10 @@ namespace Components
 		// Fix newer vision file
 		Utils::Hook(0x59A849, ParseVision_Stub, HOOK_CALL).install()->quick();
 		Utils::Hook(0x59A8AD, ParseVision_Stub, HOOK_CALL).install()->quick();
+		
+		// Fix newer shock file
+		Utils::Hook(0x4B4EA1, ParseShellShock_Stub, HOOK_CALL).install()->quick();
+		Utils::Hook(0x4B4F0C, ParseShellShock_Stub, HOOK_CALL).install()->quick();
 
 		// Fix mouse lag
 		Utils::Hook::Nop(0x4731F5, 8);

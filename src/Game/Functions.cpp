@@ -68,6 +68,8 @@ namespace Game
 	Com_MatchToken_t Com_MatchToken = Com_MatchToken_t(0x447130);
 	Com_SetSlowMotion_t Com_SetSlowMotion = Com_SetSlowMotion_t(0x446E20);
 
+	Com_ClientDObjCreate_t Com_ClientDObjCreate = Com_ClientDObjCreate_t(0x430780);
+
 	Con_DrawMiniConsole_t Con_DrawMiniConsole = Con_DrawMiniConsole_t(0x464F30);
 	Con_DrawSolidConsole_t Con_DrawSolidConsole = Con_DrawSolidConsole_t(0x5A5040);
 
@@ -403,6 +405,7 @@ namespace Game
 	TracerDef*** varTracerDefPtr = reinterpret_cast<TracerDef***>(0x112B3BC);
 	XModel*** varXModelPtr = reinterpret_cast<XModel***>(0x112A934);
 	XModel** varXModel = reinterpret_cast<XModel**>(0x112AE14);
+	XAsset** varXAsset = reinterpret_cast<XAsset**>(0x112AA54);
 	PathData** varPathData = reinterpret_cast<PathData**>(0x112AD7C);
 	const char** varConstChar = reinterpret_cast<const char**>(0x112A774);
 	Material*** varMaterialHandle = reinterpret_cast<Material***>(0x112A878);
