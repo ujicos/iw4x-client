@@ -243,8 +243,15 @@ namespace Components
 
 			int weapon = Game::BG_FindWeaponIndexForName(params->get(1));
 			auto* ps = Game::g_entities[clientNum].client;
+
+			int8_t altModel = 0;
+
+			if (params->length() >= 3)
+			{
+				altModel = static_cast<int8_t>(std::atoi(params->get(2)));
+			}
 			
-			if (Game::G_GivePlayerWeapon(ps, weapon, 0, 0))
+			if (Game::G_GivePlayerWeapon(ps, weapon, altModel, 0))
 			{
 				Game::G_InitializeAmmo(&Game::g_entities[clientNum], weapon, 0, 0);
 
@@ -348,6 +355,26 @@ namespace Components
 			if (params->length() > 1)
 			{
 				Utils::OpenUrl(params->get(1));
+			}
+		});
+
+		Command::Add("xmodelInfo", [](Command::Params* params)
+		{
+			if (params->length() > 1)
+			{
+				auto modelName = params->get(1);
+				auto *xmodel = Game::DB_FindXAssetHeader(Game::ASSET_TYPE_XMODEL, modelName).model;
+
+				if (xmodel)
+				{
+					Game::Com_Printf(0, "Model info of %s:\n", xmodel->name);
+
+					for (auto i = 0; i < xmodel->numsurfs; i++)
+					{
+						auto* mat = xmodel->materialHandles[i];
+						Game::Com_Printf(0, " - Surface %d, Material %s, techset is %s\n", i, mat->info.name, mat->techniqueSet->name);
+					}
+				}
 			}
 		});
 	}

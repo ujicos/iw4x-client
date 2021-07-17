@@ -481,8 +481,28 @@ namespace Components
 		
 	}
 
+	void Com_PrintWarningsStub(int channel, char* format,...)
+	{
+		__debugbreak();
+
+		char Buffer[4096];
+		va_list va;
+
+		va_start(va, format);
+		strcpy(Buffer, "^3");
+		int v2 = strlen(Buffer);
+		_vsnprintf(&Buffer[v2], 4096 - v2, format, va);
+		Buffer[4095] = 0;
+
+		return Game::Com_PrintMessage(channel, Buffer, 2);
+	}
+
 	QuickPatch::QuickPatch()
 	{
+		//Utils::Hook(0x4E0200, Com_PrintWarningsStub, HOOK_JUMP).install()->quick();
+
+		Utils::Hook::Nop(0x50C68B, 6);
+
 		QuickPatch::FrameTime = 0;
 		Scheduler::OnFrame([]()
 		{

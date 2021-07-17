@@ -378,11 +378,11 @@ namespace Components
 
 		Game::XFileHeader header =
 		{
-#ifdef DEBUG
+// #ifdef DEBUG
 			XFILE_MAGIC_UNSIGNED,
-#else
-			XFILE_HEADER_IW4X | (static_cast<unsigned __int64>(XFILE_VERSION_IW4X) << 32),
-#endif
+// #else
+// 			XFILE_HEADER_IW4X | (static_cast<unsigned __int64>(XFILE_VERSION_IW4X) << 32),
+// #endif
 			XFILE_VERSION,
 			Game::XFileLanguage::XLANG_NONE,
 			fileTime.dwHighDateTime,
@@ -394,22 +394,22 @@ namespace Components
 
 		std::string zoneBuffer = this->buffer.toBuffer();
 
-#ifndef DEBUG
-		// Insert a random byte, this will destroy the whole alignment and result in a crash, if not handled
-		zoneBuffer.insert(zoneBuffer.begin(), static_cast<char>(Utils::Cryptography::Rand::GenerateInt()));
-
-		char lastByte = 0;
-		for(unsigned int i = 0; i < zoneBuffer.size(); ++i )
-		{
-			char oldLastByte = lastByte;
-			lastByte = zoneBuffer[i];
-
-			Utils::RotLeft(zoneBuffer[i], 6);
-			zoneBuffer[i] ^= -1;
-			Utils::RotRight(zoneBuffer[i], 4);
-			zoneBuffer[i] ^= oldLastByte;
-		}
-#endif
+// #ifndef DEBUG
+// 		// Insert a random byte, this will destroy the whole alignment and result in a crash, if not handled
+// 		zoneBuffer.insert(zoneBuffer.begin(), static_cast<char>(Utils::Cryptography::Rand::GenerateInt()));
+// 
+// 		char lastByte = 0;
+// 		for(unsigned int i = 0; i < zoneBuffer.size(); ++i )
+// 		{
+// 			char oldLastByte = lastByte;
+// 			lastByte = zoneBuffer[i];
+// 
+// 			Utils::RotLeft(zoneBuffer[i], 6);
+// 			zoneBuffer[i] ^= -1;
+// 			Utils::RotRight(zoneBuffer[i], 4);
+// 			zoneBuffer[i] ^= oldLastByte;
+// 		}
+// #endif
 
         Utils::IO::WriteFile("uncompressed", zoneBuffer);
 
@@ -1118,6 +1118,14 @@ namespace Components
 						AssetHandler::AssetInterfaces[type]->dump(asset);
 					}
 				}
+			});
+
+			Command::Add("dumpImages", [](Command::Params*)
+			{
+				Game::DB_EnumXAssets(Game::XAssetType::ASSET_TYPE_IMAGE, [](Game::XAssetHeader header, void*)
+				{
+					AssetHandler::AssetInterfaces[Game::XAssetType::ASSET_TYPE_IMAGE]->dump(header);
+				}, nullptr, false);
 			});
 
 			Command::Add("verifyzone", [](Command::Params* params)

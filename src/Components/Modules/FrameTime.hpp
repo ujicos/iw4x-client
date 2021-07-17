@@ -7,6 +7,8 @@ namespace Components
 	public:
 		FrameTime();
 
+		uint32_t *GetFrameTime();
+
 	private:
 		static void SVFrameWaitStub();
 		static void SVFrameWaitFunc();

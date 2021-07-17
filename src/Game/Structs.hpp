@@ -631,8 +631,8 @@ namespace Game
 	struct __declspec(align(4)) GfxImageLoadDef
 	{
 		char levelCount;
-		char pad[3];
-		int flags;
+		char flags;
+		__int16 dimensions[3];
 		int format;
 		int resourceSize;
 		char data[1];
@@ -5299,6 +5299,36 @@ namespace Game
 		XModel* model;
 		__int16 boneName;
 		bool ignoreCollision;
+	};
+
+	struct viewState_t
+	{
+		void* ps;
+		int damageTime;
+		int time;
+		float v_dmg_pitch;
+		float v_dmg_roll;
+		float xyspeed;
+		float frametime;
+		float fLastIdleFactor;
+	};
+
+	struct GfxMatrix
+	{
+		float m[4][4];
+	};
+
+	struct GfxViewParms
+	{
+		GfxMatrix viewMatrix;
+		GfxMatrix projectionMatrix;
+		GfxMatrix viewProjectionMatrix;
+		GfxMatrix inverseViewProjectionMatrix;
+		float origin[4];
+		float axis[3][3];
+		float depthHackNearClip;
+		float zNear;
+		float zFar;
 	};
 #pragma endregion
 

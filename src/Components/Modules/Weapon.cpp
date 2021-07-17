@@ -8,14 +8,8 @@ namespace Components
 
 		ViewModel::LoadOrUpdateAttachmentSet(filename);
 
-		// prevent crash
-		if (ZoneBuilder::IsEnabled() && 
-			FileSystem::File(Utils::String::VA("weapons/mp/defaultweapon_mp", filename.data())).exists())
-		{
-			header.data = Game::BG_LoadWeaponDef_LoadObj("defaultweapon_mp");
-		}
 		// Try loading raw weapon
-		else if (FileSystem::File(Utils::String::VA("weapons/mp/%s", filename.data())).exists())
+		if (FileSystem::File(Utils::String::VA("weapons/mp/%s", filename.data())).exists())
 		{
 			header.data = Game::BG_LoadWeaponDef_LoadObj(filename.data());
 		}

@@ -49,7 +49,7 @@ namespace Assets
 			image->texture.loadDef->flags = loadDef.flags;
 			image->texture.loadDef->format = loadDef.format;
 			image->texture.loadDef->resourceSize = loadDef.resourceSize;
-			ZeroMemory(image->texture.loadDef->pad, 3);
+			// ZeroMemory(image->texture.loadDef->pad, 3);
 
 			if (image->texture.loadDef->resourceSize != dataLength)
 			{
@@ -97,7 +97,7 @@ namespace Assets
 				return;
 			}
 
-			image->texture.loadDef->flags = iwiHeader->flags;
+			image->texture.loadDef->flags = static_cast<char>(iwiHeader->flags);
 			image->texture.loadDef->levelCount = 0;
 
 			image->width = iwiHeader->dimensions[0];
@@ -143,6 +143,35 @@ namespace Assets
 			}
 
 			header->image = image;
+		}
+	}
+
+	void IGfxImage::dump(Game::XAssetHeader header)
+	{
+		auto* image = header.image;
+
+		if (!image) return;
+		std::string name = image->name;
+
+		if (image->texture.loadDef && image->texture.loadDef->resourceSize > 0)
+		{
+			if (name[0] == '*') name.erase(name.begin());
+
+			Utils::Stream buffer;
+			buffer.saveArray("IW4xImg" IW4X_IMG_VERSION, 8); // just stick version in the magic since we have an extra char
+
+			buffer.saveObject(static_cast<unsigned char>(image->mapType));
+			buffer.saveObject(image->semantic);
+			buffer.saveObject(image->category);
+
+			// fix up size
+			image->texture.loadDef->dimensions[0] = image->width;
+			image->texture.loadDef->dimensions[1] = image->height;
+
+			buffer.saveObject(image->texture.loadDef->resourceSize);
+			buffer.save(image->texture.loadDef, 16 + image->texture.loadDef->resourceSize);
+
+			Utils::IO::WriteFile(Utils::String::VA("raw/images/%s.iw4xImage", name.data()), buffer.toBuffer());
 		}
 	}
 

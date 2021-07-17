@@ -36,6 +36,8 @@ namespace Assets
 					xanim->name = reader.readCString();
 				}
 
+				xanim->name = Utils::Memory::DuplicateString(name.data());
+
 				if (xanim->names)
 				{
 					xanim->names = builder->getAllocator()->allocateArray<unsigned short>(xanim->boneCount[Game::PART_TYPE_ALL]);
@@ -322,6 +324,13 @@ namespace Assets
 		Utils::Stream* buffer = builder->getBuffer();
 		Game::XAnimParts* asset = header.parts;
 		Game::XAnimParts* dest = buffer->dest<Game::XAnimParts>();
+
+		if (asset->deltaPart && Utils::Memory::IsBadReadPtr(asset->deltaPart))
+		{
+			Components::Logger::Print("Warning: %s as bad ptr, setting to zero\n", asset->name);
+			asset->deltaPart = nullptr;
+		}
+
 		buffer->save(asset, sizeof(Game::XAnimParts));
 
 		buffer->pushBlock(Game::XFILE_BLOCK_VIRTUAL);

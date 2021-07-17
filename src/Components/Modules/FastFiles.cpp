@@ -474,6 +474,14 @@ namespace Components
 
 	void FastFiles::ReadXFileStub(char* buffer, int size)
 	{
+#ifdef _DEBUG
+		// zm_theater_sh loading, super large size
+		if (size == 286121276)
+		{
+			__debugbreak();
+		}
+#endif
+
 		FastFiles::ReadXFile(buffer, size);
 
 		if (FastFiles::IsIW4xZone)

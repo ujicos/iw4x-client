@@ -39,6 +39,7 @@ namespace Game
 	CG_GetClientNum_t CG_GetClientNum = CG_GetClientNum_t(0x433700);
 	CG_PlayBoltedEffect_t CG_PlayBoltedEffect = CG_PlayBoltedEffect_t(0x00430E10);
 	CG_GetBoneIndex_t CG_GetBoneIndex = CG_GetBoneIndex_t(0x00504F20);
+	CG_GetViewFov_t CG_GetViewFov = CG_GetViewFov_t(0x40D3C0);
 	
 	CL_GetClientName_t CL_GetClientName = CL_GetClientName_t(0x4563D0);
 	CL_IsCgameInitialized_t CL_IsCgameInitialized = CL_IsCgameInitialized_t(0x43EB20);
@@ -334,6 +335,8 @@ namespace Game
 	Win_GetLanguage_t Win_GetLanguage = Win_GetLanguage_t(0x45CBA0);
 
 	Vec3UnpackUnitVec_t Vec3UnpackUnitVec = Vec3UnpackUnitVec_t(0x45CA90);
+
+	InfinitePerspectiveMatrix_t InfinitePerspectiveMatrix = InfinitePerspectiveMatrix_t(0x4AC130);
 
 	unzClose_t unzClose = unzClose_t(0x41BF20);
 

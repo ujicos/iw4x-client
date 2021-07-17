@@ -64,6 +64,9 @@ namespace Game
 	typedef char*(__cdecl * CL_GetClientName_t)(int localClientNum, int index, char *buf, size_t size);
 	extern CL_GetClientName_t CL_GetClientName;
 
+	typedef double(__cdecl* CG_GetViewFov_t)();
+	extern CG_GetViewFov_t CG_GetViewFov;
+
 	typedef int(__cdecl * CL_IsCgameInitialized_t)();
 	extern CL_IsCgameInitialized_t CL_IsCgameInitialized;
 
@@ -785,6 +788,9 @@ namespace Game
 
 	typedef void(__cdecl * unzClose_t)(void* handle);
 	extern unzClose_t unzClose;
+
+	typedef void(__cdecl* InfinitePerspectiveMatrix_t)(float tanHalfFovX, float tanHalfFovY, float zNear, float(*mtx)[4]);
+	extern InfinitePerspectiveMatrix_t InfinitePerspectiveMatrix;
 
 	extern XAssetHeader* DB_XAssetPool;
 	extern unsigned int* g_poolSize;

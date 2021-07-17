@@ -2198,6 +2198,17 @@ namespace Components
 			}
 		}
 
+#ifdef _DEBUG
+		auto* xassets = reinterpret_cast<Game::XAsset*>(buffer);
+		for (int i = 0; i < count; ++i)
+		{
+			auto* xasset = xassets + i;
+			auto* type = Game::DB_GetXAssetTypeName(xasset->type);
+
+			Game::Com_Printf(0, "%d - %s\n", xasset->type, type);
+		}
+#endif
+
 		return result;
 	}
 
@@ -3824,28 +3835,8 @@ namespace Components
 		Game::DB_PopStreamPos();
 	}
 
-	void Load_XAssetHeader_Hook(bool atStreamStart)
-	{
-		Game::DB_PushStreamPos(0);
-		Game::Load_Stream(atStreamStart, Game::varXAsset, 8);
-		Game::DB_PopStreamPos();
-
-		if(*Game::varXAsset)
-			Game::Com_Printf(0, "Loading %s\n", Game::DB_GetXAssetTypeName((*Game::varXAsset)->type));
-
-		__asm 
-		{
-			push 0
-			mov ecx, 0x4EFDD0
-			call ecx
-			add esp, 4
-		}
-	}
-	
 	Zones::Zones()
 	{
-		// Utils::Hook(0x5B9AC8, Load_XAssetHeader_Hook, HOOK_CALL).install()->quick();
-
 		Zones::ZoneVersion = 0;
 
 		Command::Add("decryptImages", [](Command::Params*)
