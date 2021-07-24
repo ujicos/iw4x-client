@@ -331,6 +331,9 @@ namespace Game
 	UI_GetContext_t UI_GetContext = UI_GetContext_t(0x4F8940);
 	UI_TextWidth_t UI_TextWidth = UI_TextWidth_t(0x6315C0);
 	UI_DrawText_t UI_DrawText = UI_DrawText_t(0x49C0D0);
+	UILocalVar_Find_t UILocalVar_Find = UILocalVar_Find_t(0x4A9E20);
+	UILocalVar_Find_t UILocalVar_FindOrCreate = UILocalVar_FindOrCreate_t(0x4DBB00);
+	UI_UIContext_GetLocalVarsContext_t UI_UIContext_GetLocalVarsContext = UI_UIContext_GetLocalVarsContext_t(0x4513C0);
 
 	Win_GetLanguage_t Win_GetLanguage = Win_GetLanguage_t(0x45CBA0);
 

@@ -266,7 +266,7 @@ namespace Components
 
 		// Reference: https://courses.engr.illinois.edu/ece390/books/artofasm/CH09/CH09-6.html (See 9.5.2 Division Without DIV and IDIV)
 		// And http://reverseengineering.stackexchange.com/questions/1397/how-can-i-reverse-optimized-integer-division-modulo-by-constant-operations
-		// The game's magic number is computed using this formula: (1 / 1200) * (2 ^ (32 + 7)
+		// The game's magic number is computed using this formula: (1 / 1200) * (2 ^ (32 + 7))
 		// I'm too lazy to generate the new magic number, so we can make use of the fact that using powers of 2 as scales allows to change the compensating shift
 		static_assert(((WEAPON_LIMIT / 1200) * 1200) == WEAPON_LIMIT && (WEAPON_LIMIT / 1200) != 0 && !((WEAPON_LIMIT / 1200) & ((WEAPON_LIMIT / 1200) - 1)), "WEAPON_LIMIT / 1200 is not a power of 2!");
 		const unsigned char compensation = 7 + static_cast<unsigned char>(log2(WEAPON_LIMIT / 1200)); // 7 is the compensation the game uses
@@ -430,11 +430,102 @@ namespace Components
 		return Game::DB_FindXAssetHeader(Game::XAssetType::ASSET_TYPE_WEAPON, "none").data;
 	}
 
-	void __declspec(naked) Weapon::LoadNoneWeaponHookStub()
+	struct OLWeapon
 	{
-		__asm
+		std::string Name;
+		std::string UIName;
+	};
+
+	std::vector<OLWeapon> codolPrimaryWeapons;
+	std::vector<OLWeapon> codolSecondaryWeapons;
+
+	unsigned int GetOLPrimaryWeaponCount()
+	{
+		return codolPrimaryWeapons.size();
+	}
+
+	const char* GetOLPrimaryWeaponText(unsigned int index, int /*column*/)
+	{
+		if (codolPrimaryWeapons.size() > index)
+			return Game::SEH_StringEd_GetString(codolPrimaryWeapons[index].UIName.data());
+
+		return nullptr;
+	}
+
+	void SelectOLPrimaryWeapon(unsigned int index)
+	{
+		auto* context = Game::UI_UIContext_GetLocalVarsContext();
+		auto& weapon = codolPrimaryWeapons[index];
+		
+		auto* selectedCodolWeapPrimary = Game::UILocalVar_FindOrCreate(context, "selectedCodolWeapPrimary");
+		auto* selectedRef = Game::UILocalVar_FindOrCreate(context, "ui_selected_ref");
+
+		selectedCodolWeapPrimary->u.string = weapon.Name.data();
+		selectedRef->u.string = weapon.Name.data();
+	}
+
+	unsigned int GetOLSecondaryWeaponCount()
+	{
+		return codolSecondaryWeapons.size();
+	}
+
+	const char* GetOLSecondaryWeaponText(unsigned int index, int /*column*/)
+	{
+		if (codolSecondaryWeapons.size() > index)
+			return Game::SEH_StringEd_GetString(codolSecondaryWeapons[index].UIName.data());
+
+		return nullptr;
+	}
+
+	void SelectOLSecondaryWeapon(unsigned int index)
+	{
+		auto* context = Game::UI_UIContext_GetLocalVarsContext();
+		auto& weapon = codolSecondaryWeapons[index];
+
+		auto* selectedCodolWeapSecondary = Game::UILocalVar_FindOrCreate(context, "selectedCodolWeapSecondary");
+		auto* selectedRef = Game::UILocalVar_FindOrCreate(context, "ui_selected_ref");
+
+		selectedCodolWeapSecondary->u.string = weapon.Name.data();
+		selectedRef->u.string = weapon.Name.data();
+	}
+
+	void Weapon::ReloadCodolWeapons()
+	{
+		codolPrimaryWeapons.clear();
+		codolSecondaryWeapons.clear();
+
+		auto file = FileSystem::File("mp/codolWeapons.json");
+
+		if (file.exists())
 		{
-			jmp LoadNoneWeaponHook
+			std::string errors;
+			auto weapons = json11::Json::parse(file.getBuffer(), errors);
+
+			if (!errors.empty())
+			{
+				return;
+			}
+
+			if (!weapons.is_object())
+			{
+				return;
+			}
+
+			if (weapons["primary"].is_object())
+			{
+				for (auto& weap : weapons["primary"].object_items())
+				{
+					codolPrimaryWeapons.push_back({ weap.first, weap.second.string_value() });
+				}
+			}
+
+			if (weapons["secondary"].is_object())
+			{
+				for (auto& weap : weapons["secondary"].object_items())
+				{
+					codolSecondaryWeapons.push_back({ weap.first, weap.second.string_value() });
+				}
+			}
 		}
 	}
 
@@ -456,13 +547,74 @@ namespace Components
 
 		// Weapon swap fix
 		Utils::Hook::Nop(0x4B3670, 5);
-		Utils::Hook(0x57B4F0, LoadNoneWeaponHookStub).install()->quick();
+		Utils::Hook(0x57B4F0, LoadNoneWeaponHook, HOOK_JUMP).install()->quick();
 
 		// Don't load bounce sounds for now, it causes crashes
 		// TODO: Actually check the weaponfiles and/or reset the soundtable correctly!
 		//Utils::Hook::Nop(0x57A360, 5);
 		//Utils::Hook::Nop(0x57A366, 6);
 		Utils::Hook::Nop(0x5795E9, 2);
+
+		UIFeeder::Add(0xC0D, GetOLPrimaryWeaponCount, GetOLPrimaryWeaponText, SelectOLPrimaryWeapon);
+		UIFeeder::Add(0xC0E, GetOLSecondaryWeaponCount, GetOLSecondaryWeaponText, SelectOLSecondaryWeapon);
+
+		UIScript::Add("initPrimaryWeaponSelection", [](UIScript::Token) 
+		{
+			auto* context = Game::UI_UIContext_GetLocalVarsContext();
+			auto* loadoutPrimary = Game::UILocalVar_FindOrCreate(context, "loadoutPrimary");
+			auto* selectedCodolWeapPrimary = Game::UILocalVar_FindOrCreate(context, "selectedCodolWeapPrimary");
+			auto* selectedRef = Game::UILocalVar_FindOrCreate(context, "ui_selected_ref");
+
+			int index = 0;
+
+			for(size_t i = 0; i < codolPrimaryWeapons.size(); i++)
+			{
+				auto& weap = codolPrimaryWeapons[i];
+
+				if (weap.Name == loadoutPrimary->u.string)
+				{
+					index = i;
+					break;
+				}
+			}
+
+			selectedCodolWeapPrimary->type = Game::UILOCALVAR_STRING;
+			selectedCodolWeapPrimary->u.string = codolPrimaryWeapons[index].Name.data();
+			
+			selectedRef->type = Game::UILOCALVAR_STRING;
+			selectedRef->u.string = codolPrimaryWeapons[index].Name.data();
+
+			UIFeeder::Select(0xC0D, index);
+		});
+
+		UIScript::Add("initSecondaryWeaponSelection", [](UIScript::Token)
+		{
+			auto* context = Game::UI_UIContext_GetLocalVarsContext();
+			auto* loadoutSecondary = Game::UILocalVar_FindOrCreate(context, "loadoutSecondary");
+			auto* selectedCodolWeapSecondary = Game::UILocalVar_FindOrCreate(context, "selectedCodolWeapSecondary");
+			auto* selectedRef = Game::UILocalVar_FindOrCreate(context, "ui_selected_ref");
+
+			int index = 0;
+
+			for (size_t i = 0; i < codolSecondaryWeapons.size(); i++)
+			{
+				auto& weap = codolSecondaryWeapons[i];
+
+				if (weap.Name == loadoutSecondary->u.string)
+				{
+					index = i;
+					break;
+				}
+			}
+
+			selectedCodolWeapSecondary->type = Game::UILOCALVAR_STRING;
+			selectedCodolWeapSecondary->u.string = codolSecondaryWeapons[index].Name.data();
+
+			selectedRef->type = Game::UILOCALVAR_STRING;
+			selectedRef->u.string = codolSecondaryWeapons[index].Name.data();
+
+			UIFeeder::Select(0xC0D, index);
+		});
 
 		// Clear weapons independently from fs_game
 		//Utils::Hook::Nop(0x452C1D, 2);

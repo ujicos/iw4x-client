@@ -197,7 +197,7 @@ namespace Components
 			{
 				const float w_fov = 0.75f * tanf(GetGunFov() * 0.01745329238474369f * 0.5f);
 
-				const float tanHalfX = (16.0f / 9.0f) * w_fov;
+				const float tanHalfX = *reinterpret_cast<float *>(0x66E1C78) * w_fov;
 				const float tanHalfY = w_fov;
 
 				Game::InfinitePerspectiveMatrix(tanHalfX, tanHalfY, parms->zNear, parms->projectionMatrix.m);

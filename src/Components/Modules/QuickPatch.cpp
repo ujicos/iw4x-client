@@ -501,8 +501,6 @@ namespace Components
 	{
 		//Utils::Hook(0x4E0200, Com_PrintWarningsStub, HOOK_JUMP).install()->quick();
 
-		Utils::Hook::Nop(0x50C68B, 6);
-
 		QuickPatch::FrameTime = 0;
 		Scheduler::OnFrame([]()
 		{

@@ -780,6 +780,15 @@ namespace Game
 	typedef void(__cdecl * UI_DrawText_t)(void* scrPlace, const char *text, int maxChars, Font_s *font, float x, float y, int horzAlign, int vertAlign, float scale, const float *color, int style);
 	extern UI_DrawText_t UI_DrawText;
 
+	typedef UILocalVar* (__cdecl* UILocalVar_Find_t)(UILocalVarContext* context, const char* name);
+	extern UILocalVar_Find_t UILocalVar_Find;
+	
+	typedef UILocalVar* (__cdecl* UILocalVar_FindOrCreate_t)(UILocalVarContext* context, const char* name);
+	extern UILocalVar_FindOrCreate_t UILocalVar_FindOrCreate;
+
+	typedef UILocalVarContext* (__cdecl* UI_UIContext_GetLocalVarsContext_t)();
+	extern UI_UIContext_GetLocalVarsContext_t UI_UIContext_GetLocalVarsContext;
+
 	typedef const char * (__cdecl * Win_GetLanguage_t)();
 	extern Win_GetLanguage_t Win_GetLanguage;
 

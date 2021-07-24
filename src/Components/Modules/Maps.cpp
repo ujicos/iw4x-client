@@ -770,9 +770,43 @@ namespace Components
 		return Utils::Hook::Call<int16(int, Game::Bounds*)>(0x4416C0)(modelPointer, bounds);
 	}
 
+	
+	void ReallocDrawSurfArray() 
+	{
+		static void** drawSurfs = reinterpret_cast<void**>(0x699B9D0);
+		static int* drawSurfSizes = reinterpret_cast<int*>(0x699B980);
+
+		drawSurfSizes[0] = 0x2000 * 2;
+		drawSurfSizes[2] = 0x2000 * 2;
+		drawSurfSizes[5] = 0x2000 * 2;
+		drawSurfSizes[1] = 0x800 * 2;
+		drawSurfSizes[3] = 0x20 * 2;
+		drawSurfSizes[4] = 0x1000 * 2;
+		drawSurfSizes[6] = 0x380 * 2;
+		drawSurfSizes[7] = 0x380 * 2;
+		drawSurfSizes[8] = 0x380 * 2;
+		drawSurfSizes[9] = 0x380 * 2;
+
+		for(int i = 0; i < 10; i++)
+			drawSurfs[i] = Utils::Memory::Allocate((drawSurfSizes[i] + 1) * 8);
+	}
+
+	void R_InitScene_Stub()
+	{
+		__asm 
+		{
+			mov ebx, 0x50ED20
+			call ebx
+		}
+
+		ReallocDrawSurfArray();
+	}
 
 	Maps::Maps()
 	{
+		Utils::Hook::Nop(0x50C68B, 6);
+		// Utils::Hook(0x50756A, R_InitScene_Stub, HOOK_CALL).install()->quick();
+
 		Dvar::OnInit([]()
 		{
 			Dvar::Register<bool>("isDlcInstalled_All", false, Game::DVAR_FLAG_USERCREATED | Game::DVAR_FLAG_WRITEPROTECTED, "");

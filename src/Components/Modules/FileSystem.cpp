@@ -257,7 +257,9 @@ namespace Components
 	void FileSystem::FsStartupSync(const char* a1)
 	{
 		std::lock_guard<std::recursive_mutex> _(FileSystem::FSMutex);
-		return Utils::Hook::Call<void(const char*)>(0x4823A0)(a1); // FS_Startup
+		Utils::Hook::Call<void(const char*)>(0x4823A0)(a1); // FS_Startup
+
+		Weapon::ReloadCodolWeapons();
 	}
 
 	void FileSystem::FsRestartSync(int a1, int a2)
