@@ -26,6 +26,7 @@ namespace Components
 		StructuredData();
 		~StructuredData();
 
+		static const char* EnumTranslation[ENUM_MAX];
 	private:
 		static bool UpdateVersionOffsets(Game::StructuredDataDefSet *set, Game::StructuredDataBuffer *buffer, Game::StructuredDataDef *oldDef);
 
@@ -34,7 +35,5 @@ namespace Components
 
 		static void PatchCustomClassLimit(Game::StructuredDataDef* data, int count);
 		static Utils::Memory::Allocator MemAllocator;
-
-		static const char* EnumTranslation[ENUM_MAX];
 	};
 }

@@ -396,8 +396,111 @@ namespace Components
 		return std::function < T >(reinterpret_cast<T*>(procAddr));
 	}
 
+	char* ParseVision_Stub(const char** data_p)
+	{
+		static std::unordered_map<std::string, std::string> replace_list = {
+			{ "511","r_glow" },
+			{ "516","r_glowRadius0"},
+			{ "512","r_glowBloomCutoff"},
+			{ "513","r_glowBloomDesaturation"},
+			{ "514","r_glowBloomIntensity0"},
+			{ "520","r_filmEnable"},
+			{ "522","r_filmContrast"},
+			{ "521","r_filmBrightness"},
+			{ "523","r_filmDesaturation"},
+			{ "524","r_filmDesaturationDark"},
+			{ "525","r_filmInvert"},
+			{ "526","r_filmLightTint"},
+			{ "527","r_filmMediumTint"},
+			{ "528","r_filmDarkTint"},
+			{ "529","r_primaryLightUseTweaks"},
+			{ "530","r_primaryLightTweakDiffuseStrength"},
+			{ "531","r_primaryLightTweakSpecularStrength"},
+		};
+
+		auto token = Game::Com_Parse(data_p);
+
+		if (replace_list.find(token) != replace_list.end())
+		{
+			return replace_list[token].data();
+		}
+
+		return token;
+	}
+
+	char* ParseShellShock_Stub(const char** data_p)
+	{
+		static std::unordered_map<std::string, std::string> replace_list = {
+			{ "66","bg_shock_screenType" },
+			{ "67","bg_shock_screenBlurBlendTime"},
+			{ "68","bg_shock_screenBlurBlendFadeTime"},
+			{ "69","bg_shock_screenFlashWhiteFadeTime"},
+			{ "70","bg_shock_screenFlashShotFadeTime"},
+			{ "71","bg_shock_viewKickPeriod"},
+			{ "72","bg_shock_viewKickRadius"},
+			{ "73","bg_shock_viewKickFadeTime"},
+			{ "78","bg_shock_sound"},
+			{ "74","bg_shock_soundLoop"},
+			{ "75","bg_shock_soundLoopSilent"},
+			{ "76","bg_shock_soundEnd"},
+			{ "77","bg_shock_soundEndAbort"},
+			{ "79","bg_shock_soundFadeInTime"},
+			{ "80","bg_shock_soundFadeOutTime"},
+			{ "81","bg_shock_soundLoopFadeTime"},
+			{ "82","bg_shock_soundLoopEndDelay"},
+			{ "83","bg_shock_soundRoomType"},
+			{ "84","bg_shock_soundDryLevel"},
+			{ "85","bg_shock_soundWetLevel"},
+			{ "86","bg_shock_soundModEndDelay"},
+
+			// guessed, not sure
+			{ "87","bg_shock_lookControl"},
+			{ "88","bg_shock_lookControl_maxpitchspeed"},
+			{ "89","bg_shock_lookControl_maxyawspeed"},
+			{ "90","bg_shock_lookControl_mousesensitivityscale"},
+			{ "91","bg_shock_lookControl_fadeTime"},
+			{ "92","bg_shock_movement"}
+		};
+
+
+		auto token = Game::Com_Parse(data_p);
+		if (replace_list.find(token) != replace_list.end())
+		{
+			return replace_list[token].data();
+		}
+		return token;
+	}
+
+	void IN_ToggleADS_Throw_Down()
+	{
+		// IN_BreathSprint_Up
+		//((void(*)())(0x5A5970))();
+		Game::Cbuf_AddText(0, "-breath_sprint");
+		// IN_ToggleADS_Throw_Down
+		((void(*)())(0x5A5B10))();
+		
+	}
+
+	void Com_PrintWarningsStub(int channel, char* format,...)
+	{
+		__debugbreak();
+
+		char Buffer[4096];
+		va_list va;
+
+		va_start(va, format);
+		strcpy(Buffer, "^3");
+		int v2 = strlen(Buffer);
+		_vsnprintf(&Buffer[v2], 4096 - v2, format, va);
+		Buffer[4095] = 0;
+
+		return Game::Com_PrintMessage(channel, Buffer, 2);
+	}
+
 	QuickPatch::QuickPatch()
 	{
+		//Utils::Hook(0x4E0200, Com_PrintWarningsStub, HOOK_JUMP).install()->quick();
+
 		QuickPatch::FrameTime = 0;
 		Scheduler::OnFrame([]()
 		{
@@ -470,6 +573,9 @@ namespace Components
 
 		// Make sure preDestroy is called when the game shuts down
 		Scheduler::OnShutdown(Loader::PreDestroy);
+
+		// stop sprinting on ads
+		Utils::Hook::Set<void*>(0x45E898, IN_ToggleADS_Throw_Down);
 
 		// protocol version (workaround for hacks)
 		Utils::Hook::Set<int>(0x4FB501, PROTOCOL);
@@ -707,6 +813,17 @@ namespace Components
 
 		// Patch SV_IsClientUsingOnlineStatsOffline
 		Utils::Hook::Set<DWORD>(0x46B710, 0x90C3C033);
+
+		// Fix newer effect file
+		Utils::Hook(0x57EFD1, _strnicmp, HOOK_CALL).install()->quick();
+		
+		// Fix newer vision file
+		Utils::Hook(0x59A849, ParseVision_Stub, HOOK_CALL).install()->quick();
+		Utils::Hook(0x59A8AD, ParseVision_Stub, HOOK_CALL).install()->quick();
+		
+		// Fix newer shock file
+		Utils::Hook(0x4B4EA1, ParseShellShock_Stub, HOOK_CALL).install()->quick();
+		Utils::Hook(0x4B4F0C, ParseShellShock_Stub, HOOK_CALL).install()->quick();
 
 		// Fix mouse lag
 		Utils::Hook::Nop(0x4731F5, 8);

@@ -193,21 +193,25 @@ namespace Components
 
 	void AssetHandler::ModifyAsset(Game::XAssetType type, Game::XAssetHeader asset, const std::string& name)
 	{
-		if (type == Game::XAssetType::ASSET_TYPE_MATERIAL && (name == "gfx_distortion_knife_trail" || name == "gfx_distortion_heat_far" || name == "gfx_distortion_ring_light" || name == "gfx_distortion_heat") && asset.material->info.sortKey >= 43)
+		static std::unordered_map<std::string, char> material_sortKey_mapping_alpha =
 		{
-			if (Zones::Version() >= VERSION_ALPHA2)
-			{
-				asset.material->info.sortKey = 44;
-			}
-			else
-			{
-				asset.material->info.sortKey = 43;
-			}
-		}
+			{ "gfx_distortion_knife_trail", 44 },
+			{ "gfx_distortion_heat_far", 44 },
+			{ "gfx_distortion_ring_light", 44 },
+			{ "gfx_distortion_heat", 44 },
+			{ "gfx_moth", 44 },
+			{ "wc/codo_ui_viewer_black_decal3", 0xE },
+			{ "wc/codo_ui_viewer_black_decal2", 0xE },
+			{ "wc/hint_arrows01", 0xE },
+			{ "wc/hint_arrows02", 0xE },
+		};
 
-		if (type == Game::XAssetType::ASSET_TYPE_MATERIAL && (name == "wc/codo_ui_viewer_black_decal3" || name == "wc/codo_ui_viewer_black_decal2" || name == "wc/hint_arrows01" || name == "wc/hint_arrows02"))
+		if (type == Game::XAssetType::ASSET_TYPE_MATERIAL)
 		{
-			asset.material->info.sortKey = 0xE;
+			if (material_sortKey_mapping_alpha.find(name) != material_sortKey_mapping_alpha.end())
+			{
+				asset.material->info.sortKey = material_sortKey_mapping_alpha[name];
+			}
 		}
 
 		if (type == Game::XAssetType::ASSET_TYPE_VEHICLE && Zones::Version() >= VERSION_ALPHA2)
@@ -216,7 +220,7 @@ namespace Components
 		}
 
 		// Fix shader const stuff
-		if (type == Game::XAssetType::ASSET_TYPE_TECHNIQUE_SET && Zones::Version() >= 359 && Zones::Version() < 448)
+		if (type == Game::XAssetType::ASSET_TYPE_TECHNIQUE_SET && Zones::Version() >= 359 && Zones::Version() < 446)
 		{
 			for (int i = 0; i < 48; ++i)
 			{
@@ -442,6 +446,9 @@ namespace Components
 		Utils::Hook::Call<void(int, const char*, const char*, const char*)>(0x4F8C70)(severity, format, type, name); // Print error
 	}
 
+	bool isDumpingZone = false;
+	std::string dumpingZone;
+
 	void AssetHandler::reallocateEntryPool()
 	{
 		AssertSize(Game::XAssetEntry, 16);
@@ -534,7 +541,7 @@ namespace Components
 		AssetHandler::OnLoad([](Game::XAssetType type, Game::XAssetHeader asset, std::string name, bool*)
 		{
 #ifdef DEBUG
-// #define DUMP_TECHSETS
+#define DUMP_TECHSETS
 #ifdef DUMP_TECHSETS
 			if (type == Game::XAssetType::ASSET_TYPE_VERTEXDECL && !name.empty() && name[0] != ',')
 			{
@@ -698,8 +705,42 @@ namespace Components
 				fclose(fp);
 			}
 #endif
+			if (type == Game::XAssetType::ASSET_TYPE_MATERIAL && Zones::Version() == 461)
+			{
+				auto techset = asset.material->techniqueSet;
+				auto materialName = asset.material->info.name;
 
-			if (type == Game::XAssetType::ASSET_TYPE_TECHNIQUE_SET && Zones::Version() >= 460)
+				if (techset)
+				{
+					for (int t = 0; t < 48; t++)
+					{
+						if (techset->techniques[t])
+						{
+							for (int p = 0; p < techset->techniques[t]->passCount; p++)
+							{
+								for (int a = 0; a < techset->techniques[t]->passArray[p].perObjArgCount +
+									techset->techniques[t]->passArray[p].perPrimArgCount +
+									techset->techniques[t]->passArray[p].stableArgCount; a++)
+								{
+									auto arg = &techset->techniques[t]->passArray[p].args[a];
+									if (arg->type == 3 || arg->type == 5)
+									{
+										if (arg->u.codeConst.index == 257)
+										{
+											OutputDebugStringA(Utils::String::VA("Material %s with %s has 257\n", materialName, techset->name));
+											goto next;
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+
+			next:
+
+			if (false && type == Game::XAssetType::ASSET_TYPE_TECHNIQUE_SET && Zones::Version() >= 460)
 			{
 				auto techset = asset.techniqueSet;
 				if (techset)
@@ -724,7 +765,7 @@ namespace Components
 
 											if (!ZoneBuilder::IsEnabled())
 											{
-												__debugbreak();
+												// __debugbreak();
 											}
 										}
 									}
@@ -734,9 +775,54 @@ namespace Components
 					}
 				}
 			}
-			
+
+			if (type == Game::XAssetType::ASSET_TYPE_SOUND)
+			{
+				auto sound = asset.sound;
+
+				for (size_t i = 0; i < sound->count; i++)
+				{
+					auto snd = sound->head[i];
+
+					Game::Com_Printf(0, "%s: vmin %f, vmax %f, falloff %s\n", snd.aliasName, snd.volMin, snd.volMax, snd.volumeFalloffCurve->filename);
+				}
+			}
+
+			if (type == Game::XAssetType::ASSET_TYPE_CLIPMAP_MP)
+			{
+				auto* world = asset.clipMap;
+
+				std::vector<std::string> models;
+
+				for (size_t i = 0; i < world->numStaticModels; i++)
+				{
+					auto* xmodel = world->staticModelList[i].xmodel;
+					if (xmodel && xmodel->name)
+					{
+						if (std::find(models.begin(), models.end(), xmodel->name) == models.end())
+						{
+							models.push_back(xmodel->name);
+						}
+					}
+				}
+
+				for (auto& mdl : models)
+				{
+					Game::Com_Printf(0, "xmodel,%s\n", mdl.data());
+				}
+			}
+
+			if (type == Game::XAssetType::ASSET_TYPE_XMODEL)
+			{
+				auto* model = asset.model;
+
+				if (name != model->name)
+				{
+					__debugbreak();
+				}
+			}
 #endif
-			
+
 			if (Dvar::Var("r_noVoid").get<bool>() && type == Game::XAssetType::ASSET_TYPE_XMODEL && name == "void")
 			{
 				asset.model->numLods = 0;
@@ -756,7 +842,7 @@ namespace Components
 		Game::ReallocateAssetPool(Game::XAssetType::ASSET_TYPE_MATERIAL, 8192 * 2);
 		Game::ReallocateAssetPool(Game::XAssetType::ASSET_TYPE_VERTEXDECL, ZoneBuilder::IsEnabled() ? 0x400 : 196);
 		Game::ReallocateAssetPool(Game::XAssetType::ASSET_TYPE_WEAPON, WEAPON_LIMIT);
-		Game::ReallocateAssetPool(Game::XAssetType::ASSET_TYPE_STRINGTABLE, 800);
+		Game::ReallocateAssetPool(Game::XAssetType::ASSET_TYPE_STRINGTABLE, 3200);
 		Game::ReallocateAssetPool(Game::XAssetType::ASSET_TYPE_IMPACT_FX, 8);
 
 		// Register asset interfaces

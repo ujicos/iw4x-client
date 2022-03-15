@@ -42,14 +42,14 @@ namespace Components
         static void ExposeTemporaryAssets(bool expose);
 
 		static void OffsetToAlias(Utils::Stream::Offset* offset);
-		
+
+		static std::map<Game::XAssetType, IAsset*> AssetInterfaces;
 	private:
 		static thread_local int BypassState;
         static bool ShouldSearchTempAssets;
 
 		static std::map<std::string, Game::XAssetHeader> TemporaryAssets[Game::XAssetType::ASSET_TYPE_COUNT];
 
-		static std::map<Game::XAssetType, IAsset*> AssetInterfaces;
 		static std::map<Game::XAssetType, Utils::Slot<Callback>> TypeCallbacks;
 		static Utils::Signal<RestrictCallback> RestrictSignal;
 

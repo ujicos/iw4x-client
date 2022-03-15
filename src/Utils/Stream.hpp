@@ -99,6 +99,10 @@ namespace Utils
 		{
 			return saveArray<T>(object, 1);
 		}
+		template <typename T> inline char* saveObject(T value)
+		{
+			return saveArray(&value, 1);
+		}
 		template <typename T> inline char* saveArray(T* array, size_t count)
 		{
 			return save(array, sizeof(T), count);

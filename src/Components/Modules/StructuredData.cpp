@@ -180,6 +180,29 @@ namespace Components
 			Game::StructuredDataDefSet* data = asset.structuredDataDefSet;
 			if (!data) return;
 
+#if 0
+			for (size_t i = 0; i < data->defCount; i++)
+			{
+				auto* defData = &data->defs[i];
+				Game::Com_Printf(0, "%d.json\n", defData->version);
+				Game::Com_Printf(0, "{\n");
+				
+				for (int t = 0; t < StructuredData::PlayerDataType::ENUM_MAX; t++)
+				{
+					Game::Com_Printf(0, "\t\"%s\": [\n", StructuredData::EnumTranslation[t]);
+
+					auto* pEnum = &defData->enums[t];
+					for (int j = 0; j < pEnum->entryCount; j++)
+					{
+						Game::Com_Printf(0, "\t\t\"%s\",\n", pEnum->entries[j].string);
+					}
+
+					Game::Com_Printf(0, "\t]\n", defData->version);
+				}
+				Game::Com_Printf(0, "}\n");
+			}
+#endif
+
 			if (data->defCount != 1)
 			{
 				Logger::Error("PlayerDataDefSet contains more than 1 definition!");

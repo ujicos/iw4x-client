@@ -1,4 +1,4 @@
-#include "STDInclude.hpp"
+ï»¿#include "STDInclude.hpp"
 
 namespace Components
 {
@@ -239,7 +239,7 @@ namespace Components
 		Utils::Hook(0x4AD470, Colors::CleanStrStub, HOOK_JUMP).install()->quick();
 
 		// Register dvar
-		Colors::NewColors = Dvar::Register<bool>("cg_newColors", true, Game::dvar_flag::DVAR_FLAG_SAVED, "Use Warfare² color code style.");
+		Colors::NewColors = Dvar::Register<bool>("cg_newColors", true, Game::dvar_flag::DVAR_FLAG_SAVED, "Use Warfare^2 color code style.");
 		Game::Dvar_RegisterColor("sv_customTextColor", 1, 0.7f, 0, 1, Game::dvar_flag::DVAR_FLAG_REPLICATED, "Color for the extended color code.");
 		Dvar::Register<bool>("sv_allowColoredNames", true, Game::dvar_flag::DVAR_FLAG_NONE, "Allow colored names on the server");
 

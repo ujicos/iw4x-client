@@ -40,6 +40,12 @@ namespace Game
 	typedef void*(__cdecl * BG_LoadWeaponDef_LoadObj_t)(const char* filename);
 	extern BG_LoadWeaponDef_LoadObj_t BG_LoadWeaponDef_LoadObj;
 
+	typedef int(__cdecl* BG_FindWeaponIndexForName_t)(const char* name);
+	extern BG_FindWeaponIndexForName_t BG_FindWeaponIndexForName;
+
+	typedef int (__cdecl* BG_GetViewmodelWeaponIndex_t)(int ps);
+	extern BG_GetViewmodelWeaponIndex_t BG_GetViewmodelWeaponIndex;
+
 	typedef void(__cdecl * Cbuf_AddServerText_t)();
 	extern Cbuf_AddServerText_t Cbuf_AddServerText;
 
@@ -57,6 +63,9 @@ namespace Game
 	
 	typedef char*(__cdecl * CL_GetClientName_t)(int localClientNum, int index, char *buf, size_t size);
 	extern CL_GetClientName_t CL_GetClientName;
+
+	typedef double(__cdecl* CG_GetViewFov_t)();
+	extern CG_GetViewFov_t CG_GetViewFov;
 
 	typedef int(__cdecl * CL_IsCgameInitialized_t)();
 	extern CL_IsCgameInitialized_t CL_IsCgameInitialized;
@@ -129,6 +138,9 @@ namespace Game
 
 	typedef void(__cdecl * Com_SetSlowMotion_t)(float start, float end, int duration);
 	extern Com_SetSlowMotion_t Com_SetSlowMotion;
+
+	typedef void* (__cdecl* Com_ClientDObjCreate_t)(DObjModel_s* dobjModels, uint16_t numModels, void* tree, int handle, int localClientNum);
+	extern Com_ClientDObjCreate_t Com_ClientDObjCreate;
 
 	typedef char* (__cdecl * Con_DrawMiniConsole_t)(int localClientNum, int xPos, int yPos, float alpha);
 	extern Con_DrawMiniConsole_t Con_DrawMiniConsole;
@@ -322,6 +334,12 @@ namespace Game
 
 	typedef void(__cdecl* G_SpawnEntitiesFromString_t)();
 	extern G_SpawnEntitiesFromString_t G_SpawnEntitiesFromString;
+
+	typedef int(__cdecl* G_GivePlayerWeapon_t)(void* pPS, int weaponIndex, char altModelIndex, int unk1);
+	extern G_GivePlayerWeapon_t G_GivePlayerWeapon;
+
+	typedef uint16_t (__cdecl* G_ModelName_t)(int index);
+	extern G_ModelName_t G_ModelName;
 
 	typedef void(__cdecl * GScr_LoadGameTypeScript_t)();
 	extern GScr_LoadGameTypeScript_t GScr_LoadGameTypeScript;
@@ -762,6 +780,15 @@ namespace Game
 	typedef void(__cdecl * UI_DrawText_t)(void* scrPlace, const char *text, int maxChars, Font_s *font, float x, float y, int horzAlign, int vertAlign, float scale, const float *color, int style);
 	extern UI_DrawText_t UI_DrawText;
 
+	typedef UILocalVar* (__cdecl* UILocalVar_Find_t)(UILocalVarContext* context, const char* name);
+	extern UILocalVar_Find_t UILocalVar_Find;
+	
+	typedef UILocalVar* (__cdecl* UILocalVar_FindOrCreate_t)(UILocalVarContext* context, const char* name);
+	extern UILocalVar_FindOrCreate_t UILocalVar_FindOrCreate;
+
+	typedef UILocalVarContext* (__cdecl* UI_UIContext_GetLocalVarsContext_t)();
+	extern UI_UIContext_GetLocalVarsContext_t UI_UIContext_GetLocalVarsContext;
+
 	typedef const char * (__cdecl * Win_GetLanguage_t)();
 	extern Win_GetLanguage_t Win_GetLanguage;
 
@@ -770,6 +797,9 @@ namespace Game
 
 	typedef void(__cdecl * unzClose_t)(void* handle);
 	extern unzClose_t unzClose;
+
+	typedef void(__cdecl* InfinitePerspectiveMatrix_t)(float tanHalfFovX, float tanHalfFovY, float zNear, float(*mtx)[4]);
+	extern InfinitePerspectiveMatrix_t InfinitePerspectiveMatrix;
 
 	extern XAssetHeader* DB_XAssetPool;
 	extern unsigned int* g_poolSize;
@@ -838,6 +868,7 @@ namespace Game
 	extern TracerDef*** varTracerDefPtr;
 	extern XModel*** varXModelPtr;
 	extern XModel** varXModel;
+	extern XAsset** varXAsset;
 	extern PathData** varPathData;
 	extern const char** varConstChar;
 	extern Material*** varMaterialHandle;
@@ -916,4 +947,9 @@ namespace Game
 	void R_AddDebugString(float *color, float *pos, float scale, const char *str);
 	void R_AddDebugBounds(float* color, Bounds* b);
 	void R_AddDebugBounds(float* color, Bounds* b, const float(*quat)[4]);
+
+	void G_InitializeAmmo(gentity_s* pSelf, int weaponIndex, int weaponModel, int hadWeapon);
+
+	void Image_LoadFromData(GfxImage* image, GfxImageFileHeader* fileHeader, uint8_t* srcData);
+	void Image_PicmipForSemantic(int semantic, Picmip* picmip);
 }

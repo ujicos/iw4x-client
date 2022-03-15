@@ -101,6 +101,5 @@ namespace Components
 		static void LoadTracerDef(bool atStreamStart, Game::TracerDef* tracer, int size);
 		static void LoadTracerDefFxEffect();
 		static void FixImageCategory(Game::GfxImage* image);
-		static char* ParseVision_Stub(const char** data_p);
 	};
 }

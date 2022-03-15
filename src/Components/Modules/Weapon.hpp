@@ -12,6 +12,8 @@ namespace Components
 	public:
 		Weapon();
 
+		static void ReloadCodolWeapons();
+
 	private:
 		static Game::XAssetHeader WeaponFileLoad(Game::XAssetType type, const std::string& filename);
 		static void PatchLimit();

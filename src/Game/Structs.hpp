@@ -631,8 +631,8 @@ namespace Game
 	struct __declspec(align(4)) GfxImageLoadDef
 	{
 		char levelCount;
-		char pad[3];
-		int flags;
+		char flags;
+		__int16 dimensions[3];
 		int format;
 		int resourceSize;
 		char data[1];
@@ -5262,7 +5262,74 @@ namespace Game
 		int updateSound;
 		int allowAddDObj;
 	};
+	
+	struct weaponState_t
+	{
+		char* ps;
+		float xyspeed;
+		float frametime;
+		float fLastIdleFactor;
+		int time;
+		int damageTime;
+		float v_dmg_pitch;
+		float v_dmg_roll;
+		int* weapIdleTime;
+		vec3_t baseAngles;
+		vec3_t baseOrigin;
+		vec3_t recoilAngles;
+		vec3_t recoilSpeed;
+		vec3_t swayAngles;
+		vec3_t swayOrigin;
+		vec3_t swayViewAngles;
+		vec3_t bobAngles;
+		int shellShockStart;
+		int shellShockDuration;
+		int shellShockFadeTime;
+	};
 
+	struct cspField_t
+	{
+		const char* szName;
+		int iOffset;
+		int iFieldType;
+	};
+
+	struct DObjModel_s
+	{
+		XModel* model;
+		__int16 boneName;
+		bool ignoreCollision;
+	};
+
+	struct viewState_t
+	{
+		void* ps;
+		int damageTime;
+		int time;
+		float v_dmg_pitch;
+		float v_dmg_roll;
+		float xyspeed;
+		float frametime;
+		float fLastIdleFactor;
+	};
+
+	struct GfxMatrix
+	{
+		float m[4][4];
+	};
+
+	struct GfxViewParms
+	{
+		GfxMatrix viewMatrix;
+		GfxMatrix projectionMatrix;
+		GfxMatrix viewProjectionMatrix;
+		GfxMatrix inverseViewProjectionMatrix;
+		float origin[4];
+		float axis[3][3];
+		float depthHackNearClip;
+		float zNear;
+		float zFar;
+	};
 #pragma endregion
 
 #ifndef IDA

@@ -139,6 +139,11 @@ namespace Components
 			data.push_back({ "iw4x_patch_mp", 1, 0 });
 		}
 
+		if (FastFiles::Exists("common_codo_weapons"))
+		{
+			data.push_back({ "common_codo_weapons", 1, 0 });
+		}
+
 		if (Utils::IO::FileExists(Dvar::Var("fs_game").get<std::string>() + "/mod.ff"))
 		{
 			data.push_back({ "mod", 1, 0 });
@@ -181,6 +186,11 @@ namespace Components
 		if (FastFiles::Exists("iw4x_code_post_gfx_mp"))
 		{
 			data.push_back({ "iw4x_code_post_gfx_mp", zoneInfo->allocFlags, zoneInfo->freeFlags });
+		}
+
+		if (FastFiles::Exists("test"))
+		{
+			data.push_back({ "test", zoneInfo->allocFlags, zoneInfo->freeFlags });
 		}
 
 		Game::DB_LoadXAssets(data.data(), data.size(), sync);
@@ -254,6 +264,16 @@ namespace Components
 			if (Utils::String::EndsWith(zone, "_load"))
 			{
 				Utils::String::Replace(zone, "_load", "");
+			}
+
+			if (Utils::String::EndsWith(zone, "_patch"))
+			{
+				Utils::String::Replace(zone, "_patch", "");
+			}
+
+			if (Utils::String::EndsWith(zone, "_ui"))
+			{
+				Utils::String::Replace(zone, "_ui", "");
 			}
 
 			if (Utils::IO::FileExists(Utils::String::VA("usermaps\\%s\\%s.ff", zone.data(), filename.data())))
@@ -454,6 +474,14 @@ namespace Components
 
 	void FastFiles::ReadXFileStub(char* buffer, int size)
 	{
+#ifdef _DEBUG
+		// zm_theater_sh loading, super large size
+		if (size == 286121276)
+		{
+			__debugbreak();
+		}
+#endif
+
 		FastFiles::ReadXFile(buffer, size);
 
 		if (FastFiles::IsIW4xZone)

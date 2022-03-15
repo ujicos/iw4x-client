@@ -29,7 +29,9 @@ namespace Game
 
 	BG_GetNumWeapons_t BG_GetNumWeapons = BG_GetNumWeapons_t(0x4F5CC0);
 	BG_GetWeaponName_t BG_GetWeaponName = BG_GetWeaponName_t(0x4E6EC0);
+	BG_FindWeaponIndexForName_t BG_FindWeaponIndexForName = BG_FindWeaponIndexForName_t(0x4CE8E0);
 	BG_LoadWeaponDef_LoadObj_t BG_LoadWeaponDef_LoadObj = BG_LoadWeaponDef_LoadObj_t(0x57B5F0);
+	BG_GetViewmodelWeaponIndex_t BG_GetViewmodelWeaponIndex = BG_GetViewmodelWeaponIndex_t(0x4BE4D0);
 
 	Cbuf_AddServerText_t Cbuf_AddServerText = Cbuf_AddServerText_t(0x4BB9B0);
 	Cbuf_AddText_t Cbuf_AddText = Cbuf_AddText_t(0x404B20);
@@ -37,6 +39,7 @@ namespace Game
 	CG_GetClientNum_t CG_GetClientNum = CG_GetClientNum_t(0x433700);
 	CG_PlayBoltedEffect_t CG_PlayBoltedEffect = CG_PlayBoltedEffect_t(0x00430E10);
 	CG_GetBoneIndex_t CG_GetBoneIndex = CG_GetBoneIndex_t(0x00504F20);
+	CG_GetViewFov_t CG_GetViewFov = CG_GetViewFov_t(0x40D3C0);
 	
 	CL_GetClientName_t CL_GetClientName = CL_GetClientName_t(0x4563D0);
 	CL_IsCgameInitialized_t CL_IsCgameInitialized = CL_IsCgameInitialized_t(0x43EB20);
@@ -65,6 +68,8 @@ namespace Game
 	Com_Parse_t Com_Parse = Com_Parse_t(0x474D60);
 	Com_MatchToken_t Com_MatchToken = Com_MatchToken_t(0x447130);
 	Com_SetSlowMotion_t Com_SetSlowMotion = Com_SetSlowMotion_t(0x446E20);
+
+	Com_ClientDObjCreate_t Com_ClientDObjCreate = Com_ClientDObjCreate_t(0x430780);
 
 	Con_DrawMiniConsole_t Con_DrawMiniConsole = Con_DrawMiniConsole_t(0x464F30);
 	Con_DrawSolidConsole_t Con_DrawSolidConsole = Con_DrawSolidConsole_t(0x5A5040);
@@ -138,6 +143,8 @@ namespace Game
 
 	G_GetWeaponIndexForName_t G_GetWeaponIndexForName = G_GetWeaponIndexForName_t(0x49E540);
 	G_SpawnEntitiesFromString_t G_SpawnEntitiesFromString = G_SpawnEntitiesFromString_t(0x4D8840);
+	G_GivePlayerWeapon_t G_GivePlayerWeapon = G_GivePlayerWeapon_t(0x4B38B0);
+	G_ModelName_t G_ModelName = G_ModelName_t(0x5FC460);
 
 	GScr_LoadGameTypeScript_t GScr_LoadGameTypeScript = GScr_LoadGameTypeScript_t(0x4ED9A0);
 
@@ -324,10 +331,15 @@ namespace Game
 	UI_GetContext_t UI_GetContext = UI_GetContext_t(0x4F8940);
 	UI_TextWidth_t UI_TextWidth = UI_TextWidth_t(0x6315C0);
 	UI_DrawText_t UI_DrawText = UI_DrawText_t(0x49C0D0);
+	UILocalVar_Find_t UILocalVar_Find = UILocalVar_Find_t(0x4A9E20);
+	UILocalVar_Find_t UILocalVar_FindOrCreate = UILocalVar_FindOrCreate_t(0x4DBB00);
+	UI_UIContext_GetLocalVarsContext_t UI_UIContext_GetLocalVarsContext = UI_UIContext_GetLocalVarsContext_t(0x4513C0);
 
 	Win_GetLanguage_t Win_GetLanguage = Win_GetLanguage_t(0x45CBA0);
 
 	Vec3UnpackUnitVec_t Vec3UnpackUnitVec = Vec3UnpackUnitVec_t(0x45CA90);
+
+	InfinitePerspectiveMatrix_t InfinitePerspectiveMatrix = InfinitePerspectiveMatrix_t(0x4AC130);
 
 	unzClose_t unzClose = unzClose_t(0x41BF20);
 
@@ -399,6 +411,7 @@ namespace Game
 	TracerDef*** varTracerDefPtr = reinterpret_cast<TracerDef***>(0x112B3BC);
 	XModel*** varXModelPtr = reinterpret_cast<XModel***>(0x112A934);
 	XModel** varXModel = reinterpret_cast<XModel**>(0x112AE14);
+	XAsset** varXAsset = reinterpret_cast<XAsset**>(0x112AA54);
 	PathData** varPathData = reinterpret_cast<PathData**>(0x112AD7C);
 	const char** varConstChar = reinterpret_cast<const char**>(0x112A774);
 	Material*** varMaterialHandle = reinterpret_cast<Material***>(0x112A878);
@@ -1192,6 +1205,44 @@ namespace Game
 
 			popad
 			retn
+		}
+	}
+
+	void G_InitializeAmmo(gentity_s* pSelf, int weaponIndex, int weaponModel, int hadWeapon)
+	{
+		__asm
+		{
+			mov edi, pSelf
+			mov eax, weaponIndex
+			push weaponModel
+			push hadWeapon
+			mov ecx, 0x5D8DE0
+			call ecx
+			add esp, 8
+		}
+	}
+
+	void Image_LoadFromData(GfxImage* image, GfxImageFileHeader* fileHeader, uint8_t* srcData)
+	{
+		__asm
+		{
+			push image
+			mov eax, fileHeader
+			mov edx, srcData
+			mov ecx, 0x53AAA0
+			call ecx
+			add esp, 4
+		}
+	}
+	
+	void Image_PicmipForSemantic(int semantic, Picmip* picmip)
+	{
+		__asm
+		{
+			mov eax, semantic
+			mov ecx, picmip
+			mov ebx, 0x51F3A0
+			call ebx
 		}
 	}
 #pragma optimize("", on)

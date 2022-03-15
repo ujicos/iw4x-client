@@ -1,5 +1,8 @@
 #include "STDInclude.hpp"
 
+#include "Utils/IO.hpp"
+#include "Utils/String.hpp"
+
 #define IW4X_ANIM_VERSION 1
 
 namespace Assets
@@ -32,6 +35,8 @@ namespace Assets
 				{
 					xanim->name = reader.readCString();
 				}
+
+				xanim->name = Utils::Memory::DuplicateString(name.data());
 
 				if (xanim->names)
 				{
@@ -237,6 +242,81 @@ namespace Assets
 		}
 	}
 
+	void IXAnimParts::dump(Game::XAssetHeader header)
+	{
+		Game::XAnimParts parts = *header.parts;
+
+		Utils::Stream buffer;
+		buffer.saveArray("IW4xAnim", 8);
+		buffer.saveObject(IW4X_ANIM_VERSION);
+
+		buffer.saveArray(&parts, 1);
+
+		if (parts.name)
+		{
+			buffer.saveString(parts.name);
+		}
+
+		for (int i = 0; i < parts.boneCount[Game::PART_TYPE_ALL]; ++i)
+		{
+			buffer.saveString(Game::SL_ConvertToString(parts.names[i]));
+		}
+
+		if (parts.notify)
+		{
+			buffer.saveArray(parts.notify, parts.notifyCount);
+
+			for (int i = 0; i < parts.notifyCount; ++i)
+			{
+				buffer.saveString(Game::SL_ConvertToString(parts.notify[i].name));
+			}
+		}
+
+		if (parts.dataByte)
+		{
+			buffer.saveArray(parts.dataByte, parts.dataByteCount);
+		}
+
+		if (parts.dataShort)
+		{
+			buffer.saveArray(parts.dataShort, parts.dataShortCount);
+		}
+
+		if (parts.dataInt)
+		{
+			buffer.saveArray(parts.dataInt, parts.dataIntCount);
+		}
+
+		if (parts.randomDataByte)
+		{
+			buffer.saveArray(parts.randomDataByte, parts.randomDataByteCount);
+		}
+
+		if (parts.randomDataShort)
+		{
+			buffer.saveArray(parts.randomDataShort, parts.randomDataShortCount);
+		}
+
+		if (parts.randomDataInt)
+		{
+			buffer.saveArray(parts.randomDataInt, parts.randomDataIntCount);
+		}
+
+		if (parts.indices.data)
+		{
+			if (parts.numframes < 256)
+			{
+				buffer.saveArray(parts.indices._1, parts.indexCount); // actually another pad
+			}
+			else
+			{
+				buffer.saveArray(parts.indices._2, parts.indexCount);
+			}
+		}
+
+		Utils::IO::WriteFile(Utils::String::VA("raw/xanim/%s.iw4xAnim", parts.name), buffer.toBuffer());
+	}
+
 	void IXAnimParts::save(Game::XAssetHeader header, Components::ZoneBuilder::Zone* builder)
 	{
 		AssertSize(Game::XAnimParts, 88);
@@ -244,6 +324,13 @@ namespace Assets
 		Utils::Stream* buffer = builder->getBuffer();
 		Game::XAnimParts* asset = header.parts;
 		Game::XAnimParts* dest = buffer->dest<Game::XAnimParts>();
+
+		if (asset->deltaPart && Utils::Memory::IsBadReadPtr(asset->deltaPart))
+		{
+			Components::Logger::Print("Warning: %s as bad ptr, setting to zero\n", asset->name);
+			asset->deltaPart = nullptr;
+		}
+
 		buffer->save(asset, sizeof(Game::XAnimParts));
 
 		buffer->pushBlock(Game::XFILE_BLOCK_VIRTUAL);

@@ -148,6 +148,26 @@ namespace Components
 		Utils::Merge(&Maps::CurrentDependencies, dependencies.data(), dependencies.size());
 
 		std::vector<Game::XZoneInfo> data;
+		
+		// Load patch files
+		std::string patchZone = Utils::String::VA("patch_%s", zoneInfo->name);
+		if (FastFiles::Exists(patchZone))
+		{
+			data.push_back({ patchZone.data(), zoneInfo->allocFlags, zoneInfo->freeFlags });
+		}
+
+		std::string patchZtZone = Utils::String::VA("patch_zt_%s", zoneInfo->name);
+		if (FastFiles::Exists(patchZtZone))
+		{
+			data.push_back({ patchZtZone.data(), zoneInfo->allocFlags, zoneInfo->freeFlags });
+		}
+
+		std::string patchZoneUsermap = Utils::String::VA("%s_patch", zoneInfo->name);
+		if (FastFiles::Exists(patchZoneUsermap))
+		{
+			data.push_back({ patchZoneUsermap.data(), zoneInfo->allocFlags, zoneInfo->freeFlags });
+		}
+
 		Utils::Merge(&data, zoneInfo, zoneCount);
 		
 		Game::XZoneInfo team;
@@ -171,12 +191,6 @@ namespace Components
 			data.push_back(info);
 		}
 
-		// Load patch files
-		std::string patchZone = Utils::String::VA("patch_%s", zoneInfo->name);
-		if (FastFiles::Exists(patchZone))
-		{
-			data.push_back({patchZone.data(), zoneInfo->allocFlags, zoneInfo->freeFlags});
-		}
 
 		return FastFiles::LoadLocalizeZones(data.data(), data.size(), sync);
 	}
@@ -732,7 +746,7 @@ namespace Components
 	void Maps::G_SpawnTurretHook(Game::gentity_s* ent, int unk, int unk2)
 	{
 		if (Maps::CurrentMainZone == "mp_backlot_sh"s || Maps::CurrentMainZone == "mp_con_spring"s || 
-			Maps::CurrentMainZone == "mp_mogadishu_sh"s || Maps::CurrentMainZone == "mp_nightshift_sh"s)
+			Maps::CurrentMainZone == "mp_mogadishu_sh"s || Maps::CurrentMainZone == "mp_nightshift_sh"s || Maps::CurrentMainZone == "mp_wasteland_sh"s)
 		{
 			return;
 		}
@@ -755,9 +769,44 @@ namespace Components
 #endif
 		return Utils::Hook::Call<int16(int, Game::Bounds*)>(0x4416C0)(modelPointer, bounds);
 	}
+
 	
+	void ReallocDrawSurfArray() 
+	{
+		static void** drawSurfs = reinterpret_cast<void**>(0x699B9D0);
+		static int* drawSurfSizes = reinterpret_cast<int*>(0x699B980);
+
+		drawSurfSizes[0] = 0x2000 * 2;
+		drawSurfSizes[2] = 0x2000 * 2;
+		drawSurfSizes[5] = 0x2000 * 2;
+		drawSurfSizes[1] = 0x800 * 2;
+		drawSurfSizes[3] = 0x20 * 2;
+		drawSurfSizes[4] = 0x1000 * 2;
+		drawSurfSizes[6] = 0x380 * 2;
+		drawSurfSizes[7] = 0x380 * 2;
+		drawSurfSizes[8] = 0x380 * 2;
+		drawSurfSizes[9] = 0x380 * 2;
+
+		for(int i = 0; i < 10; i++)
+			drawSurfs[i] = Utils::Memory::Allocate((drawSurfSizes[i] + 1) * 8);
+	}
+
+	void R_InitScene_Stub()
+	{
+		__asm 
+		{
+			mov ebx, 0x50ED20
+			call ebx
+		}
+
+		ReallocDrawSurfArray();
+	}
+
 	Maps::Maps()
 	{
+		Utils::Hook::Nop(0x50C68B, 6);
+		// Utils::Hook(0x50756A, R_InitScene_Stub, HOOK_CALL).install()->quick();
+
 		Dvar::OnInit([]()
 		{
 			Dvar::Register<bool>("isDlcInstalled_All", false, Game::DVAR_FLAG_USERCREATED | Game::DVAR_FLAG_WRITEPROTECTED, "");
@@ -791,7 +840,7 @@ namespace Components
 			});
 		});
 
-		// disable turrets on CoD:OL 448+ maps for now
+		// disable turrets on CoD:OL 446+ maps for now
 		Utils::Hook(0x5EE577, Maps::G_SpawnTurretHook, HOOK_CALL).install()->quick();
 		Utils::Hook(0x44A4D5, Maps::G_SpawnTurretHook, HOOK_CALL).install()->quick();
 
@@ -909,9 +958,26 @@ namespace Components
 				if (gameWorld->dpvs.smodelVisData[0][i])
 				{
 					std::string name = gameWorld->dpvs.smodelDrawInsts[i].model->name;
-
+			
 					if (models.find(name) == models.end()) models[name] = 1;
 					else models[name]++;
+				}
+			}
+
+			for (auto* entity = Game::g_entities; reinterpret_cast<int>(entity) < 0x19BD74A; entity++)
+			{
+				if (entity->classname)
+				{
+					std::string classname = Game::SL_ConvertToString(entity->classname);
+					std::string scriptClassName = Game::SL_ConvertToString(entity->script_classname);
+
+					if (classname == "script_model" || scriptClassName == "script_model")
+					{
+						auto model = Game::SL_ConvertToString(Game::G_ModelName(entity->model));
+						
+						if (models.find(model) != models.end()) models[model] = 1;
+						else models[model]++;
+					}
 				}
 			}
 
@@ -926,6 +992,87 @@ namespace Components
 				Game::R_AddCmdDrawText(Utils::String::VA("%d %s", model.second, model.first.data()), 0x7FFFFFFF, font, 15.0f, (height * scale + 1) * (i++ + 1) + 15.0f, scale, scale, 0.0f, color, Game::ITEM_TEXTSTYLE_NORMAL);
 			}
 		}, true);
+
+		auto* sv_disablePlayerClips = Game::Dvar_RegisterBool("sv_disablePlayerClips", true, Game::DVAR_FLAG_REPLICATED, "Disable all player clips (aka invisible walls)");
+		auto* sv_everythingIsLadder = Game::Dvar_RegisterBool("sv_everythingIsLadder", true, Game::DVAR_FLAG_REPLICATED, "Everything is ladder!");
+
+		AssetHandler::OnLoad([sv_disablePlayerClips, sv_everythingIsLadder](Game::XAssetType type, Game::XAssetHeader asset, const std::string&, bool*)
+		{
+#define CONTENTS_ITEMCLIP 0x400
+#define CONTENTS_VEHICLECLIP 0x200
+#define CONTENTS_PLAYERCLIP 0x10000
+
+#define SURFACE_LADDER 0x8
+			if(type == Game::ASSET_TYPE_CLIPMAP_MP || type == Game::ASSET_TYPE_CLIPMAP_SP)
+			{
+				auto* cm = asset.clipMap;
+
+				if (sv_disablePlayerClips->current.enabled)
+				{
+					for (size_t i = 0; i < cm->numBrushes; i++)
+					{
+						auto* brush = &cm->brushes[i];
+						auto* contents = cm->brushContents + i;
+
+						bool isLadder = false;
+
+						for (int j = 0; j < brush->numsides; j++)
+						{
+							auto* material = &cm->materials[brush->sides[j].materialNum];
+
+							if (material->surfaceFlags & SURFACE_LADDER)
+							{
+								isLadder = true;
+								break;
+							}
+						}
+
+						if (isLadder)
+							continue;
+
+						if (*contents & CONTENTS_ITEMCLIP)
+							continue;
+
+						// remove playerclip flag
+						if(*contents & CONTENTS_PLAYERCLIP)
+							*contents &= ~CONTENTS_PLAYERCLIP;
+					}
+				}
+
+				if (sv_everythingIsLadder->current.enabled)
+				{
+					for (size_t i = 0; i < cm->numMaterials; i++)
+					{
+						cm->materials[i].surfaceFlags |= SURFACE_LADDER;
+					}
+				}
+			}
+		});
+
+		AssetHandler::OnFind(Game::XAssetType::ASSET_TYPE_MATERIAL, [](Game::XAssetType type, const std::string& name) {
+			Game::XAssetHeader header = Game::DB_FindXAssetHeader(type, name.data());
+			auto* material = header.material;
+
+			if (material && material->textureTable &&
+				material->textureTable->u.image->name == "default"s &&
+				name.find("preview_") != std::string::npos)
+			{
+				std::string uiFastfile = name.data() + 8;
+
+				uiFastfile += "_ui";
+
+				Game::Com_Printf(0, "Trying to load %s\n", uiFastfile.data());
+
+				if (FastFiles::Exists(uiFastfile))
+				{
+					Game::XZoneInfo info = { uiFastfile.data(), 2, 0 };
+					Game::DB_LoadXAssets(&info, 1, 0);
+				}
+
+			}
+
+			return header;
+		});
 	}
 
 	Maps::~Maps()

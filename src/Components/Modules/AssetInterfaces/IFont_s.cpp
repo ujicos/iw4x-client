@@ -202,7 +202,8 @@ namespace Assets
 
 			// Save generated image
 			Utils::IO::CreateDir("userraw\\images");
-			
+
+			// Build a header
 			int fileSize = w * h * 4;
 			int iwiHeaderSize = static_cast<int>(sizeof(Game::GfxImageFileHeader));
 
@@ -223,12 +224,12 @@ namespace Assets
 			};
 
 			std::string outIwi;
-			outIwi.resize(fileSize + sizeof(Game::GfxImageFileHeader));
+			outIwi.resize(fileSize + iwiHeaderSize);
 
-			std::memcpy(outIwi.data(), &iwiHeader, sizeof(Game::GfxImageFileHeader));
+			std::memcpy(outIwi.data(), &iwiHeader, iwiHeaderSize);
 
 			// Generate RGBA data
-			auto* rgbaPixels = outIwi.data() + sizeof(Game::GfxImageFileHeader);
+			auto* rgbaPixels = outIwi.data() + iwiHeaderSize;
 
 			for (int i = 0; i < w * h * 4; i += 4)
 			{
